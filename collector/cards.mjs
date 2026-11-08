@@ -81,8 +81,8 @@ function pick(rows) {
   const live = rows.filter(r => (ALLOW_SAMPLE || !r.is_sample) && COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title && r.short_desc);
   const sorted = [...live].sort((a, b) => (b.heat || 0) - (a.heat || 0) || (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9));
   const best = new Map();
-  for (const r of sorted) if (!best.has(r.cc)) best.set(r.cc, r);
-  const countries = best.size;
+  for (const r of sorted) { const k = ALLOW_SAMPLE ? r.id : r.cc; if (!best.has(k)) best.set(k, r); }   // 테스트는 앱에 있는 화제를 전부
+  const countries = new Set([...best.values()].map(r => r.cc)).size;
   const topics = [...best.values()].slice(0, COUNT).map(r => ({
     cc: r.cc, title: r.title, title_en: r.title_en, short_desc: r.short_desc, status: r.status, category: r.category,
     pattern: r.pattern || 0, area: r.area || CITY_KO[r.city_id] || '',
