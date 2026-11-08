@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       date:
-        description: '올릴 날짜 (예: 2026-11-08). 비우면 가장 최근 카드'
+        description: '올릴 날짜 (예: 2026-11-09). 비우면 가장 최근 카드'
         type: string
         default: ''
       dry_run:
@@ -16,8 +16,10 @@ on:
         description: '다시 올리기 (이미 올린 날짜도)'
         type: boolean
         default: false
+permissions:
+  contents: write               # 게시 기록(posted.json)을 남기기 위해
 concurrency:
-  group: instagram-publish     # 두 번 눌러도 동시에 올라가지 않게
+  group: instagram-publish      # 두 번 눌러도 동시에 올라가지 않게
   cancel-in-progress: false
 jobs:
   publish:
@@ -25,14 +27,28 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: 카드 이미지 브랜치 내려받기
+        uses: actions/checkout@v4
+        with:
+          ref: cards-images
+          path: cards-images
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: node collector/instagram.mjs publish
+      - name: 올리기
+        run: node collector/instagram.mjs publish
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ vars.IG_USER_ID }}
+          CARDS_ROOT: cards-images
           PUBLISH_DATE: ${{ inputs.date }}
           DRY_RUN: ${{ inputs.dry_run }}
           FORCE: ${{ inputs.force }}
+      - name: 게시 기록 남기기
+        if: ${{ success() && !inputs.dry_run }}
+        working-directory: cards-images
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "posted"
+            git push -q origin HEAD:cards-images
+          fi

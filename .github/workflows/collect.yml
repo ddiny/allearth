@@ -1,7 +1,7 @@
 name: 매일 화제 수집
+# 지금은 자동 실행을 꺼뒀어요. 앱용 AI 요약 데이터를 만들 때만 쓰고, Claude API 키(유료)와 Supabase가 필요해요.
+# 인스타 카드뉴스는 이 수집 없이 구글 트렌드에서 바로 만들어요 (cards.yml).
 on:
-  schedule:
-    - cron: '0 15 * * *'    # 매일 15:00 UTC = 한국 시간 자정(00:00)
   workflow_dispatch:         # Actions 탭에서 직접 실행할 수도 있어요
     inputs:
       dry_run:
