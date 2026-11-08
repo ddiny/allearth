@@ -1,5 +1,5 @@
-// 지구 근황 · 카드뉴스 HTML 템플릿 (1080 × 1350, 인스타 4:5)
-// 스타일: 아이보리 종이 + 옅은 그레인, 큰 굵은 글자 + 형광펜 강조, 국기·배지는 스티커처럼.
+// AllEarth · 인스타 카드뉴스 HTML 템플릿 (1080 × 1350, 인스타 4:5)
+// 스타일: AllEarth 디자인 가이드(docs/AllEarth_DESIGN_GUIDE.md) 색상·폰트·심볼 로고, 큰 굵은 글자 + 라임 강조, 국기·배지는 스티커처럼.
 // 프로필 격자는 표지를 좌우로 약 34px씩 잘라 보여줘서, 중요한 내용은 좌우 64px 안쪽에 둬요.
 import { readFileSync } from 'node:fs';
 
@@ -29,13 +29,6 @@ export const COUNTRY = {
   SG: { ko: '싱가포르', en: 'SINGAPORE', flag: 'sg', c: ['#5E6B7A', '#E4E9EE'] },
   TW: { ko: '대만', en: 'TAIWAN', flag: 'tw', c: ['#5E35B1', '#E7DCF8'] }
 };
-export const CITY_KO = {
-  seoul: '서울', tokyo: '도쿄', newyork: '뉴욕', paris: '파리', london: '런던', rome: '로마', saopaulo: '상파울루', sydney: '시드니',
-  bangkok: '방콕', berlin: '베를린', madrid: '마드리드', istanbul: '이스탄불', toronto: '토론토', mexicocity: '멕시코시티', mumbai: '뭄바이',
-  jakarta: '자카르타', hochiminh: '호치민', singapore: '싱가포르', taipei: '타이베이', shanghai: '상하이'
-};
-const STATUS = { hot: 'HOT', rising: 'RISING', new: 'NEW', talked: 'ONGOING' };
-const CATEGORY = { food: '푸드', tech: '테크', life: '라이프', culture: '컬처', fashion: '패션', wellness: '웰니스', travel: '여행' };
 
 /* 국기: collector/cards/flags/*.svg (flag-icons, MIT) 를 data URI로 넣어요 */
 const flagCache = {};
@@ -73,7 +66,6 @@ const brandSvg = name => readFileSync(new URL(`./brand/${name}.svg`, import.meta
   .replace(/fill="#23262C"/gi, 'fill="currentColor"');
 /* 앱 홈 화면처럼 심볼 로고를 써요 (brand-horizontal 은 '⊕rth' 짧은 조합이라 단독으로 쓰면 이름이 잘 안 읽혀요) */
 const LOGO = `<span class="logo" aria-label="AllEarth">${brandSvg('brand-symbol')}</span>`;
-const SYMBOL = `<span class="logo logo--symbol" aria-label="AllEarth">${brandSvg('brand-symbol')}</span>`;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON = {
   save: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
@@ -96,84 +88,58 @@ export function dateParts(iso) {
   return { dot: `${d.getUTCFullYear()}.${pad(d.getUTCMonth() + 1)}.${pad(d.getUTCDate())}`, ko: `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`, dow: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getUTCDay()] };
 }
 
-/* 데이터 출처별 문구
-   allearth = AllEarth 앱의 편집 화제(topics.js) · trends = 구글 트렌드 · app = 예전 앱(AI 요약) */
-const COPY = {
-  allearth: n => ({ pill: 'AllEarth 지구 근황', h1: `${n}개국에서 지금<br><mark>일어나는 이야기</mark>`, foot: 'AllEarth가 고른 이야기' }),
-  trends: n => ({ pill: '오늘의 지구 근황', h1: `지금 ${n}개국이<br><mark>가장 많이 검색한</mark><br>이야기`, foot: '구글 트렌드 급상승 검색어 기준' }),
-  app: n => ({ pill: '오늘의 지구 근황', h1: `지금 ${n}개국이<br><mark>가장 많이 검색한</mark><br>이야기`, foot: '구글 트렌드 급상승 검색어 기준' })
-};
-
 /* ---------- 1장: 표지 ---------- */
-export function coverHtml({ date, topics, countryCount, total, handle, source = 'trends' }) {
-  const dp = dateParts(date), compact = topics.length > 9, c = (COPY[source] || COPY.trends)(countryCount);
+export function coverHtml({ date, topics, countryCount, total, handle }) {
+  const dp = dateParts(date), compact = topics.length > 9;
   const tiles = topics.map((t, i) => {
     const co = COUNTRY[t.cc];
     return `<li><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><span>${esc(co.ko)}${t.category_label ? ` · ${esc(t.category_label)}` : ''}</span><b>${esc(t.title)}</b></div><i class="mono">${pad(i + 2)}</i></li>`;
   }).join('');
   return page(`<div class="card s-cover${compact ? ' compact' : ''}${topics.length === 9 ? ' nine' : ''}">
   <div class="top">${LOGO}<span class="mono date">${dp.dot} ${dp.dow}</span></div>
-  <div class="pill">${esc(c.pill)}</div>
-  <h1>${c.h1}</h1>
+  <div class="pill">AllEarth 지구 근황</div>
+  <h1>${countryCount}개국에서 지금<br><mark>일어나는 이야기</mark></h1>
   <ul class="list">${tiles}</ul>
-  <div class="foot"><span>${esc(c.foot)} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
+  <div class="foot"><span>AllEarth가 고른 이야기 · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
 
-/* ---------- 2장~: 나라별 화제 ---------- */
+/* ---------- 2장~: 나라별 화제 (앱 문구 그대로) ---------- */
 export function topicHtml(t, { index, total, handle }) {
   const co = COUNTRY[t.cc];
-  const sub = [co.en, t.area].filter(Boolean).join(' · ');
-  const why = (t.why || []).slice(0, 3).map((w, i) => `<li data-drop><i class="mono">${pad(i + 1)}</i><span>${esc(w)}</span></li>`).join('');
-  const sources = [...new Set((t.news || []).map(n => n.source).filter(Boolean))].slice(0, 2);
-  const editorial = t.kind === 'allearth';
   const img = t.image_url ? `<img class="photo" src="${esc(t.image_url)}" alt="${esc(t.image_alt || '')}" data-photo${t.image_position ? ` style="object-position:${esc(t.image_position)}"` : ''}>` : '';
-  const st = t.status in STATUS ? t.status : 'rising';
-  const badge = editorial ? '<div class="badge badge--new">TODAY</div>' : `<div class="badge badge--${st}">${STATUS[st]}</div>`;
-  const chip = t.category_label || CATEGORY[t.category] || '';
-  /* 사진 출처: 앱 화제는 앱에 적힌 문구를 그대로 사진 아래에, 그 밖은 사진 위에 작게 */
-  const creditOver = !editorial && t.image_url && t.image_credit ? `<div class="credit mono" data-credit>Photo ${esc(t.image_credit)} / Pexels</div>` : '';
-  const creditLine = editorial && t.image_url && t.image_credit ? `<p class="credit-line" data-credit>${esc(t.image_credit)}</p>` : '';
-  const footLeft = editorial
-    ? (t.source_name ? `출처 · ${esc(t.source_name)}` : '')
-    : `출처 Google 트렌드${sources.length ? ' · ' + sources.map(esc).join(', ') : ''}${t.ai === false ? (t.translated ? ' · 자동 번역' : '') : ' · AI 요약'}`;
-  return page(`<div class="card s-topic${editorial ? ' editorial' : ''}" data-fit>
+  /* 사진 출처: 앱에 적힌 문구를 그대로 사진 아래에 */
+  const credit = t.image_url && t.image_credit ? `<p class="credit-line" data-credit>${esc(t.image_credit)}</p>` : '';
+  return page(`<div class="card s-topic editorial" data-fit>
   <div class="top">
-    <div class="who"><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><b>${esc(co.ko)}</b><span class="mono">${esc(sub)}</span></div></div>
+    <div class="who"><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><b>${esc(co.ko)}</b><span class="mono">${esc(co.en)}</span></div></div>
     <span class="count mono">${pad(index)} / ${pad(total)}</span>
   </div>
-  <div class="art${img ? ' has-photo' : ''}" style="--cc:${co.c[0]};--cc2:${co.c[1]}">${poster(t.pattern || 0, t.cc, t.title)}<img class="big-flag sticker" src="${flagSrc(t.cc)}" alt="">${img}
-    ${badge}
-    ${chip ? `<div class="chip"># ${esc(chip)}</div>` : ''}
-    ${creditOver}
+  <div class="art${img ? ' has-photo' : ''}" style="--cc:${co.c[0]};--cc2:${co.c[1]}">${poster(hash(t.title) % 8, t.cc, t.title)}<img class="big-flag sticker" src="${flagSrc(t.cc)}" alt="">${img}
+    <div class="badge badge--new">TODAY</div>
+    ${t.category_label ? `<div class="chip"># ${esc(t.category_label)}</div>` : ''}
   </div>
-  ${creditLine}
+  ${credit}
   <h2 data-shrink><mark>${esc(t.title)}</mark></h2>
   ${t.when ? `<p class="when mono">${esc(t.when)}</p>` : ''}
   <p class="short">${esc(t.short_desc)}</p>
-  ${why ? `<ul class="why">${why}</ul>` : ''}
-  <div class="foot"><span>${footLeft}</span>${handleHtml(handle)}</div>
+  <div class="foot"><span>${t.source_name ? `출처 · ${esc(t.source_name)}` : ''}</span>${handleHtml(handle)}</div>
 </div>`);
 }
 
-/* ---------- 마지막 장 ---------- */
-export function outroHtml({ topics, restCount, total, handle, ai = true, translated = '', source = '' }) {
+/* ---------- 마지막 장 (화제가 8개 이하일 때만. 9개면 10장 한도 때문에 빠져요) ---------- */
+export function outroHtml({ topics, total, handle }) {
   const many = topics.length > 8;
   const flags = topics.slice(0, 18).map(t => `<img class="flag sticker" src="${flagSrc(t.cc)}" alt="">`).join('');
   const acts = [['save', '저장하기', '다시 보기'], ['share', '공유하기', '친구에게 보내기'], ['follow', '팔로우', '새 이야기 받기']]
     .map(([k, a, b]) => `<li><span>${ICON[k]}</span><b>${a}</b><em>${b}</em></li>`).join('');
-  const h2 = source === 'allearth' ? `더 많은 나라 이야기는<br><mark>AllEarth</mark>에서 만나요`
-    : !ai ? `내일 아침에도<br><mark>세계 검색어</mark>를<br>모아 올게요` : restCount > 0 ? `나머지 <mark>${restCount}개국</mark> 소식은<br>앱에서 볼 수 있어요` : `더 자세한 소식은<br><mark>앱에서</mark> 볼 수 있어요`;
-  const sub = source === 'allearth' ? '지구본을 돌려 나라별 이야기를 둘러보세요.' : ai ? '매일 밤 12시(한국 시간)에 새 화제로 바뀌어요.' : '매일 아침 7시, 나라별 급상승 검색어를 카드로 정리해요.';
-  const note = source === 'allearth' ? '이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.'
-    : ai ? '구글 트렌드 급상승 검색어와 관련 뉴스를 AI가 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.' : translated ? `구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 ${esc(translated)}로 자동 번역했어요.` : '구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 원문 그대로 실었어요.';
   return page(`<div class="card s-outro${many ? ' many' : ''}">
   <div class="top">${LOGO}<span class="count mono">${pad(total)} / ${pad(total)}</span></div>
   <div class="flags">${flags}</div>
-  <h2>${h2}</h2>
-  <p class="sub">${sub}</p>
+  <h2>더 많은 나라 이야기는<br><mark>AllEarth</mark>에서 만나요</h2>
+  <p class="sub">지구본을 돌려 나라별 이야기를 둘러보세요.</p>
   <ul class="acts">${acts}</ul>
-  <p class="note">${note}</p>
+  <p class="note">이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.</p>
   ${handle ? `<div class="foot"><span></span>${handleHtml(handle)}</div>` : ''}
 </div>`);
 }

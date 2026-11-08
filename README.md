@@ -42,20 +42,21 @@ app/assets/topics/topics.js   ← 앱 화면과 인스타 카드의 공통 원�
 - 로또·복권·로그인 같은 도구성 검색어는 자동으로 빼요. 사건·사고 같은 민감한 검색어는 걸러지지 않으니 미리보기에서 꼭 확인하세요.
 
 ## 카드 디자인 고치기
-카드는 순수 HTML/CSS (1080 × 1350, 인스타 4:5)예요.
+카드는 순수 HTML/CSS (1080 × 1350, 인스타 4:5)이고 AllEarth 디자인 가이드를 따라요.
 
 ```
-collector/cards/
-  cards.css         스타일 전부. 색은 맨 위 :root (--accent 형광펜, --paper 바탕, --hot HOT 배지)
-  design/index.html 네 종류 미리보기 (브라우저로 열기)
-  template.mjs      HTML 구조와 문구
-  flags/            국기 SVG 20개 (flag-icons, MIT)
+app/assets/topics/topics.js   카드 내용의 원본 (앱과 공통)
 collector/
-  trends.mjs        구글 트렌드 읽기
+  allearth.mjs      topics.js 읽기
   cards.mjs         카드 만들기
   instagram.mjs     인스타 게시
+  cards/
+    cards.css       스타일 전부. 색은 맨 위 :root (가이드 4.1 토큰)
+    template.mjs    HTML 구조와 고정 문구
+    brand/          AllEarth 로고·Poppins (앱 파일 그대로)
+    flags/          국기 SVG (flag-icons, MIT)
+docs/               AllEarth 디자인 가이드, 패키지 안내
 ```
 
 ## 앱
-- `app/`: AllEarth 앱 프로토타입 (v8, 2026-11-08 팀 검토본). `app/preview.html`을 브라우저로 열어요.
-- `index.html`, `collect.yml`: 예전 앱(ath)과 그 수집기예요. 지금 카드뉴스에는 쓰지 않아요.
+`app/`: AllEarth 앱 프로토타입 (v8, 2026-11-08 팀 검토본). `app/preview.html`을 브라우저로 열어요.
