@@ -22,6 +22,7 @@ import { dirname, join } from 'node:path';
 import { chromium } from 'playwright';
 import { W, H, FONT_URL, COUNTRY, CITY_KO, coverHtml, topicHtml, outroHtml, sheetHtml, dateParts } from './cards/template.mjs';
 import { loadTrends, trafficKo } from './trends.mjs';
+import { toKorean, engine } from './translate.mjs';
 
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const SOURCE = (process.env.CARDS_SOURCE || 'app').toLowerCase();
@@ -126,7 +127,7 @@ async function shoot(page, html, file) {
 }
 
 /* ---------- 4. 캡션 ---------- */
-function caption({ date, topics, countries }) {
+function caption({ date, topics, countries, translated }) {
   const dp = dateParts(date);
   const photos = [...new Set(topics.filter(t => t.photoShown && t.image_credit).map(t => t.image_credit))];
   return [
@@ -134,9 +135,10 @@ function caption({ date, topics, countries }) {
     '',
     `오늘 ${countries}개국에서 많이 검색된 화제 중 ${topics.length}개를 골랐어요.`,
     '',
-    ...topics.map(t => `${COUNTRY[t.cc].ko} | ${t.title}${t.traffic ? ` (검색 ${trafficKo(t.traffic)})` : ''}`),
+    ...topics.map(t => `${COUNTRY[t.cc].ko} | ${t.title}${t.translated && t.title_en ? ` (${t.title_en})` : ''}${t.traffic ? ` · 검색 ${trafficKo(t.traffic)}` : ''}`),
     '',
     AI ? '구글 트렌드 급상승 검색어와 관련 뉴스를 AI가 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.'
+       : translated ? `구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 ${translated}로 자동 번역했어요.`
        : '구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 원문 그대로 실었어요.',
     ...(photos.length ? [`사진: ${photos.join(', ')} (Pexels)`] : []),
     '',
@@ -148,6 +150,18 @@ function caption({ date, topics, countries }) {
 export async function main() {
   const rows = await loadRows();
   const { topics, countries, date } = pick(rows);
+  /* 구글 트렌드 원문이면 검색어와 뉴스 제목을 한국어로 (무료 번역, 실패하면 원문) */
+  let translated = '';
+  if (SOURCE === 'trends' && !/^(0|false|no)$/i.test(process.env.CARDS_TRANSLATE || '')) {
+    log(`한국어로 번역해요 (${engine()})…`);
+    for (const t of topics) {
+      const [kw, ...why] = await toKorean([t.title, ...t.why], t.cc, log);
+      if (kw && kw !== t.title) { t.title_en = t.title; t.title = kw; }
+      t.why = why.map(w => w.length > 60 ? w.slice(0, 58) + '…' : w);
+      t.translated = true;
+    }
+    translated = engine();
+  }
   if (!topics.length) throw new Error('카드로 만들 화제가 없어요 (실제 수집 데이터가 아직 없거나 모두 샘플이에요)');
   const dir = `${OUT}/${date}`;
   await mkdir(dir, { recursive: true });
@@ -163,7 +177,7 @@ export async function main() {
     const slides = [
       { name: '01-cover.jpg', html: coverHtml({ date, topics, countryCount: countries, total, handle: HANDLE }) },
       ...topics.map((t, i) => ({ name: `${String(i + 2).padStart(2, '0')}-${t.cc.toLowerCase()}.jpg`, html: topicHtml(t, { index: i + 2, total, handle: HANDLE }), t })),
-      { name: `${String(total).padStart(2, '0')}-outro.jpg`, html: outroHtml({ topics, restCount: countries - topics.length, total, handle: HANDLE, ai: AI }) }
+      { name: `${String(total).padStart(2, '0')}-outro.jpg`, html: outroHtml({ topics, restCount: countries - topics.length, total, handle: HANDLE, ai: AI, translated }) }
     ];
     for (const s of slides) {
       const r = await shoot(page, s.html, `${dir}/${s.name}`);
@@ -178,7 +192,7 @@ export async function main() {
     await page.screenshot({ path: `${dir}/preview.jpg`, type: 'jpeg', quality: 85, fullPage: true });
   } finally { await browser.close(); }
 
-  const cap = caption({ date, topics, countries });
+  const cap = caption({ date, topics, countries, translated });
   await writeFile(`${dir}/caption.txt`, cap + '\n');
   await writeFile(`${dir}/cards.json`, JSON.stringify({ date, countries, slides: files.map(f => f.name), topics: topics.map(t => ({ cc: t.cc, title: t.title, photo: t.photoShown ? { credit: t.image_credit, link: t.image_link } : null })) }, null, 1));
 

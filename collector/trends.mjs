@@ -9,7 +9,9 @@ export const GEO = {
 };
 
 /* 화제로 보기 어려운 도구성 검색어 (로또, 로그인 등). 사람이 최종 확인하니 가볍게만 걸러요 */
-const SKIP = /lotto|lottery|loter[ií]a|loto\b|powerball|mega ?millions|login|log in|로또|복권|宝くじ|ロト|樂透|大樂透|xổ số|xo so|หวย|togel|şans topu|sayısal/i;
+const SKIP = /lotto|lottery|loter[ií]a|loto\b|powerball|mega ?millions|login|log in|로또|복권|宝くじ|ロト|樂透|大樂透|統一發票|xổ số|xo so|\bxs(mn|mb|mt|kt|tp)?\b|\bxs[a-z]{2,3}\b|kqxs|หวย|สลาก|togel|şans topu|sayısal|milli piyango|kerala lottery|satta|matka|keno/i;
+/* 검색어만 보고는 모를 때가 많아서(예: xsmn, sm80) 뉴스 제목까지 같이 봐요 */
+const isTool = i => SKIP.test([i.term, ...i.news.map(n => n.title)].join(' '));
 
 const decode = s => s.replace(/<!\[CDATA\[|\]\]>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n)).trim();
 const tag = (s, t) => { const m = s.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)); return m ? decode(m[1]) : ''; };
@@ -45,7 +47,7 @@ export async function loadTrends({ countries = Object.keys(GEO), names = {}, log
   for (const cc of countries) {
     if (!GEO[cc]) continue;
     try {
-      const items = (await fetchGeo(GEO[cc])).filter(i => i.news.length && !SKIP.test(i.term));
+      const items = (await fetchGeo(GEO[cc])).filter(i => i.news.length && !isTool(i));
       if (!items.length) { failed.push(`${cc}: 쓸 만한 검색어 없음`); continue; }
       const top = items.sort((a, b) => b.traffic - a.traffic)[0];
       const name = names[cc] || cc;

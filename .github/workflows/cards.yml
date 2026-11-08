@@ -1,6 +1,7 @@
 name: 매일 카드뉴스 만들기
-# 앱에 노출되는 화제를 앱과 같은 방식(공개 주소·공개 키)으로 읽어 카드를 만들어요 (무료. 키 필요 없음)
-# 앱에 실제 데이터가 없으면 카드를 만들지 않아요. 그때는 source 를 trends(구글 트렌드 원문)로 바꿔 실행할 수 있어요.
+# 기본: 구글 트렌드 나라별 급상승 검색어 → 한국어 자동 번역(무료) → 카드
+#   번역은 MyMemory(가입 없이 무료). Secrets 에 DEEPL_API_KEY 를 넣으면 DeepL(월 50만 자 무료, 품질 좋음)을 써요.
+# source=app: 앱에 노출되는 화제(AI 요약)로 만들어요. 앱에 실제 데이터가 있을 때만 돼요.
 # 만든 이미지는 cards-images 브랜치에 올라가요. 인스타가 그 공개 주소에서 이미지를 가져가요.
 on:
   schedule:
@@ -8,10 +9,10 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: '데이터 출처 (app = 앱에 보이는 화제, trends = 구글 트렌드 원문)'
+        description: '데이터 출처 (trends = 구글 트렌드 + 한국어 번역, app = 앱에 보이는 화제)'
         type: choice
-        options: [app, trends]
-        default: app
+        options: [trends, app]
+        default: trends
       count:
         description: '화제 카드 수 (1~18). 8 이하면 자동 게시 가능, 9 이상은 앱에서 직접 올리기용(최대 20장)'
         type: string
@@ -42,7 +43,8 @@ jobs:
         id: cards
         run: node collector/cards.mjs
         env:
-          CARDS_SOURCE: ${{ inputs.source || 'app' }}
+          CARDS_SOURCE: ${{ inputs.source || 'trends' }}
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           CARDS_COUNT: ${{ inputs.count || '8' }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}
           CARDS_HANDLE: ${{ vars.CARDS_HANDLE }}

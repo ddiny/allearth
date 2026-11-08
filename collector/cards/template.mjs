@@ -126,12 +126,12 @@ export function topicHtml(t, { index, total, handle }) {
   <h2 data-shrink><mark>${esc(t.title)}</mark></h2>
   <p class="short">${esc(t.short_desc)}</p>
   ${why ? `<ul class="why">${why}</ul>` : ''}
-  <div class="foot"><span>출처 Google 트렌드${sources.length ? ' · ' + sources.map(esc).join(', ') : ''}${t.ai === false ? '' : ' · AI 요약'}</span>${handleHtml(handle)}</div>
+  <div class="foot"><span>출처 Google 트렌드${sources.length ? ' · ' + sources.map(esc).join(', ') : ''}${t.ai === false ? (t.translated ? ' · 자동 번역' : '') : ' · AI 요약'}</span>${handleHtml(handle)}</div>
 </div>`);
 }
 
 /* ---------- 마지막 장 ---------- */
-export function outroHtml({ topics, restCount, total, handle, ai = true }) {
+export function outroHtml({ topics, restCount, total, handle, ai = true, translated = '' }) {
   const many = topics.length > 8;
   const flags = topics.slice(0, 18).map(t => `<img class="flag sticker" src="${flagSrc(t.cc)}" alt="">`).join('');
   const acts = [['save', '저장하기', '내일 또 보기'], ['share', '공유하기', '친구에게 보내기'], ['follow', '팔로우', '매일 아침 받기']]
@@ -142,7 +142,7 @@ export function outroHtml({ topics, restCount, total, handle, ai = true }) {
   <h2>${!ai ? `내일 아침에도<br><mark>세계 검색어</mark>를<br>모아 올게요` : restCount > 0 ? `나머지 <mark>${restCount}개국</mark> 소식은<br>앱에서 볼 수 있어요` : `더 자세한 소식은<br><mark>앱에서</mark> 볼 수 있어요`}</h2>
   <p class="sub">${ai ? '매일 밤 12시(한국 시간)에 새 화제로 바뀌어요.' : '매일 아침 7시, 나라별 급상승 검색어를 카드로 정리해요.'}</p>
   <ul class="acts">${acts}</ul>
-  <p class="note">${ai ? '구글 트렌드 급상승 검색어와 관련 뉴스를 AI가 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.' : '구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 원문 그대로 실었어요.'}</p>
+  <p class="note">${ai ? '구글 트렌드 급상승 검색어와 관련 뉴스를 AI가 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.' : translated ? `구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 ${esc(translated)}로 자동 번역했어요.` : '구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 원문 그대로 실었어요.'}</p>
   ${handle ? `<div class="foot"><span></span>${handleHtml(handle)}</div>` : ''}
 </div>`);
 }
