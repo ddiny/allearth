@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: '데이터 출처 (trends = 구글 트렌드 + 한국어 번역, app = 앱에 보이는 화제)'
+        description: '데이터 출처 (trends = 구글 트렌드 + 한국어 번역, app = 앱에 보이는 화제, app-test = 앱 예시 데이터로 테스트만)'
         type: choice
-        options: [trends, app]
+        options: [trends, app, app-test]
         default: trends
       count:
         description: '화제 카드 수 (1~18). 8 이하면 자동 게시 가능, 9 이상은 앱에서 직접 올리기용(최대 20장)'
@@ -43,7 +43,8 @@ jobs:
         id: cards
         run: node collector/cards.mjs
         env:
-          CARDS_SOURCE: ${{ inputs.source || 'trends' }}
+          CARDS_SOURCE: ${{ inputs.source == 'app-test' && 'app' || inputs.source || 'trends' }}
+          CARDS_ALLOW_SAMPLE: ${{ inputs.source == 'app-test' && '1' || '' }}
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           CARDS_COUNT: ${{ inputs.count || '8' }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}
@@ -59,21 +60,22 @@ jobs:
           DATE: ${{ steps.cards.outputs.date }}
           DIR: ${{ steps.cards.outputs.dir }}
           GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ inputs.source == 'app-test' && 'cards-test' || 'cards-images' }}   # 테스트는 게시용 브랜치에 올리지 않아요
         run: |
           set -euo pipefail
           URL="${PUSH_URL:-https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git}"
           rm -rf pub && mkdir -p "pub/$DATE"
           cp "$DIR"/* "pub/$DATE/"
           cd pub
-          git init -q -b cards-images
+          git init -q -b "$BRANCH"
           # 같은 날 다시 만들어도 '이미 올림' 기록은 남겨요 (중복 게시 방지)
-          if git fetch -q --depth 1 "$URL" cards-images 2>/dev/null; then
+          if git fetch -q --depth 1 "$URL" "$BRANCH" 2>/dev/null; then
             git show "FETCH_HEAD:$DATE/posted.json" > "$DATE/posted.json" 2>/dev/null || rm -f "$DATE/posted.json"
           fi
           git add -A
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "cards $DATE"
-          git push -q -f "$URL" HEAD:cards-images
-          RAW="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/cards-images/$DATE"
+          git push -q -f "$URL" "HEAD:$BRANCH"
+          RAW="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/$BRANCH/$DATE"
           {
             echo "### 미리보기"
             echo "![카드 미리보기]($RAW/preview.jpg)"

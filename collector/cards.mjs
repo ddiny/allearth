@@ -27,6 +27,7 @@ import { toKorean, engine } from './translate.mjs';
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const SOURCE = (process.env.CARDS_SOURCE || 'app').toLowerCase();
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));
+const ALLOW_SAMPLE = /^(1|true|yes)$/i.test(process.env.CARDS_ALLOW_SAMPLE || '');   // 테스트: 앱의 예시 데이터로도 만들기
 const AI = SOURCE !== 'trends';   // 앱 데이터는 AI가 한국어로 요약한 것, 구글 트렌드는 원문 그대로
 
 /* 앱(index.html)에 들어 있는 Supabase 공개 주소와 publishable 키를 그대로 읽어요. 앱을 바꾸면 카드도 따라가요 */
@@ -69,6 +70,7 @@ async function loadRows() {
   const rows = await r.json();
   const real = rows.filter(x => !x.is_sample).length;
   log(`  · 화제 ${rows.length}개 (실제 ${real}개, 예시 ${rows.length - real}개)`);
+  if (!real && ALLOW_SAMPLE) { log('  ⚠ 테스트: 예시 데이터로 만들어요 (인스타 게시용 아님)'); return rows; }
   if (!real) throw new Error('앱에 실제 화제 데이터가 없어요. 지금 앱은 예시 데이터를 보여주고 있어서 인스타에는 올리지 않아요. (구글 트렌드로 만들려면 source 를 trends 로)');
   return rows;
 }
@@ -76,7 +78,7 @@ async function loadRows() {
 /* ---------- 2. 고르기: 나라마다 1개, 검색량(heat) 높은 순 ---------- */
 const RANK = { hot: 0, rising: 1, new: 2, talked: 3 };
 function pick(rows) {
-  const live = rows.filter(r => !r.is_sample && COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title && r.short_desc);
+  const live = rows.filter(r => (ALLOW_SAMPLE || !r.is_sample) && COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title && r.short_desc);
   const sorted = [...live].sort((a, b) => (b.heat || 0) - (a.heat || 0) || (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9));
   const best = new Map();
   for (const r of sorted) if (!best.has(r.cc)) best.set(r.cc, r);
@@ -131,6 +133,7 @@ function caption({ date, topics, countries, translated }) {
   const dp = dateParts(date);
   const photos = [...new Set(topics.filter(t => t.photoShown && t.image_credit).map(t => t.image_credit))];
   return [
+    ...(ALLOW_SAMPLE ? ['[테스트 · 앱 예시 데이터로 만든 카드예요]', ''] : []),
     `${dp.ko}, 지구 근황`,
     '',
     `오늘 ${countries}개국에서 많이 검색된 화제 중 ${topics.length}개를 골랐어요.`,
