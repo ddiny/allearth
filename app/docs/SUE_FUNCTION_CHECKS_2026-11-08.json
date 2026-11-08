@@ -1,0 +1,119 @@
+{
+  "date": "2026-11-08",
+  "method": "Isolated Chrome session over localhost; no application source changes; failed-save and one-related-candidate are deliberately injected fixtures.",
+  "earth": {
+    "search": {
+      "query": "TWS, 오늘 「TO US」 발매",
+      "results": "검색 결과 · 0개\n\n일치하는 국가가 없어요."
+    },
+    "country": {
+      "issues": 3,
+      "grabberHidden": "true",
+      "actions": [
+        {
+          "action": "save-country",
+          "label": "국가 저장"
+        },
+        {
+          "action": "close",
+          "label": "이슈 시트 닫기"
+        },
+        {
+          "action": "detail",
+          "label": "TWS, 오늘 「TO US」 발매"
+        },
+        {
+          "action": null,
+          "label": "TWS, 오늘 「TO US」 발매음악"
+        },
+        {
+          "action": null,
+          "label": "대한민국의 문화·일상 이야기편집 예시"
+        },
+        {
+          "action": null,
+          "label": "대한민국에서 나누는 여행 팁편집 예시"
+        },
+        {
+          "action": "save-topic",
+          "label": "이슈 저장"
+        },
+        {
+          "action": "add",
+          "label": "이야기 추가"
+        },
+        {
+          "action": "records",
+          "label": "기록 보기"
+        }
+      ]
+    },
+    "detail": {
+      "title": "TWS, 오늘 「TO US」 발매",
+      "actions": [
+        "back",
+        "add",
+        "sort",
+        "sort",
+        "grid",
+        "copy",
+        "reaction",
+        "reaction",
+        "reaction",
+        "reaction",
+        "related",
+        "related"
+      ],
+      "source": true,
+      "related": [
+        "관련 이슈",
+        "다음 이슈"
+      ]
+    },
+    "singleRelated": "관련 이슈",
+    "errors": []
+  },
+  "cross": {
+    "savedFailure": {
+      "savedId": "saved-example-0",
+      "stillSaved": false,
+      "cardPresent": false,
+      "errorShown": false
+    },
+    "world": {
+      "options": [
+        {
+          "value": "",
+          "label": "위치를 선택해 주세요"
+        },
+        {
+          "value": "성수동",
+          "label": "성수동"
+        },
+        {
+          "value": "연남동",
+          "label": "연남동"
+        },
+        {
+          "value": "을지로",
+          "label": "을지로"
+        },
+        {
+          "value": "해운대",
+          "label": "해운대"
+        },
+        {
+          "value": "도쿄",
+          "label": "도쿄"
+        }
+      ]
+    },
+    "comments": {
+      "draftAfterReopen": "",
+      "controls": [
+        "등록"
+      ]
+    },
+    "errors": []
+  }
+}

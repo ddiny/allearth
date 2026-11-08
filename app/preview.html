@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AllEarth · 앱 화면 테스트</title>
+  <link rel="icon" href="assets/figma/brand-symbol.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="preview.css?v=20261102-types">
+  <script src="preview.js?v=20261108-my-examples" defer></script>
+</head>
+<body>
+  <header class="preview-header">
+    <div>
+      <p class="eyebrow">ALLEARTH / APP PROTOTYPE</p>
+      <h1>화면별로, 타입별로.</h1>
+      <p class="header-copy">11월 8일 업데이트 · My와 내 게시글, Saved·시청내역, 공통 메뉴 흐름을 확인해 보세요.</p>
+    </div>
+    <a class="standalone-link" id="standalone-link" href="home.html" target="_blank" rel="noopener">앱 화면만 열기 ↗</a>
+  </header>
+  <main class="preview-layout">
+    <aside class="inspector">
+      <section class="panel">
+        <h2>화면 선택</h2>
+        <div class="screen-groups" role="group" aria-label="화면 유형 선택">
+          <button type="button" data-group="login" aria-pressed="false">로그인</button>
+          <button type="button" data-group="signup" aria-pressed="false">가입</button>
+          <button type="button" data-group="home" aria-pressed="true">홈</button>
+          <button type="button" data-group="issue" aria-pressed="false">이슈</button>
+          <button type="button" data-group="feed" aria-pressed="false">Feed</button>
+          <button type="button" data-group="saved" aria-pressed="false">Saved</button>
+          <button type="button" data-group="my" aria-pressed="false">My</button>
+        </div>
+        <h3 class="variant-label" id="variant-label">홈 타입</h3>
+        <div class="screen-options" data-variants="login" role="group" aria-label="로그인 타입 선택" hidden>
+          <button type="button" data-screen="login-a" aria-pressed="false">A · 로그인<small>닫기 버튼 포함</small></button>
+          <button type="button" data-screen="login-b" aria-pressed="false">B · 로그인<small>간결한 시작 화면</small></button>
+        </div>
+        <div class="screen-options" data-variants="signup" role="group" aria-label="가입 화면 선택" hidden>
+          <button type="button" data-screen="signup" aria-pressed="false">가입 정보<small>입력·동의</small></button>
+          <button type="button" data-screen="complete" aria-pressed="false">가입 완료<small>내 지구로 시작</small></button>
+        </div>
+        <div class="screen-options" data-variants="home" role="group" aria-label="홈 타입 선택">
+          <button type="button" data-screen="home" aria-pressed="true">A · 이슈 이미지<small>현재 홈</small></button>
+          <button type="button" data-screen="home-flags" aria-pressed="false">B · 국기<small>국가명 옆 국기</small></button>
+        </div>
+        <div class="screen-options" data-variants="issue" role="group" aria-label="이슈 화면 선택" hidden>
+          <button type="button" data-screen="issue" aria-pressed="false">나라 시트<small>이슈·이야기·기록</small></button>
+          <button type="button" data-screen="topic-detail" aria-pressed="false">화제 디테일<small>기록·반응·정렬</small></button>
+        </div>
+        <div class="screen-options" data-variants="feed" role="group" aria-label="지역 Feed 보기 선택" hidden>
+          <button type="button" data-screen="feed-list" aria-pressed="false">지역 Feed 목록<small>성수동 · 요약 목록</small></button>
+          <button type="button" data-screen="feed-grid" aria-pressed="false">지역 Feed 그리드<small>같은 기록 · 2열 보기</small></button>
+          <button type="button" data-screen="feed-world" aria-pressed="false">World Feed<small>첫 진입 · 위치 선택</small></button>
+        </div>
+        <div class="screen-options" data-variants="saved" role="group" aria-label="Saved 화면 선택" hidden>
+          <button type="button" data-screen="feed-saved" aria-pressed="false">Saved<small>저장 콘텐츠 보기</small></button>
+          <button type="button" data-screen="saved-countries" aria-pressed="false">국가 예시<small>나라 시트 연결</small></button>
+          <button type="button" data-screen="saved-posts" aria-pressed="false">게시글 예시<small>이미지·본문·반응</small></button>
+          <button type="button" data-screen="saved-empty" aria-pressed="false">빈 상태<small>저장한 항목 없음</small></button>
+          <button type="button" data-screen="saved-error" aria-pressed="false">오류 상태<small>불러오기 재시도</small></button>
+        </div>
+        <div class="screen-options" data-variants="my" role="group" aria-label="My 화면 선택" hidden>
+          <button type="button" data-screen="my-profile" aria-pressed="false">프로필<small>내 활동 요약</small></button>
+          <button type="button" data-screen="my-grid" aria-pressed="false">그리드<small>내 기록 격자</small></button>
+          <button type="button" data-screen="my-list" aria-pressed="false">목록<small>내 기록 목록</small></button>
+          <button type="button" data-screen="my-posts-grid" aria-pressed="false">게시글 격자<small>피드가 있는 예시</small></button>
+          <button type="button" data-screen="my-posts-list" aria-pressed="false">게시글 목록<small>피드 본문 예시</small></button>
+          <button type="button" data-screen="my-settings" aria-pressed="false">설정<small>계정 설정</small></button>
+          <button type="button" data-screen="my-history" aria-pressed="false">시청내역<small>최근 본 기록·이슈</small></button>
+          <button type="button" data-screen="my-loggedout" aria-pressed="false">로그아웃<small>비로그인 상태</small></button>
+        </div>
+        <label class="scenario-control" for="auth-scenario" hidden>로그인 분기 테스트
+          <select id="auth-scenario">
+            <option value="new">신규 회원</option>
+            <option value="existing">기존 회원</option>
+            <option value="cancel">인증 취소</option>
+            <option value="error">인증 실패</option>
+          </select>
+        </label>
+        <h2>화면 크기</h2>
+        <div class="device-options" aria-label="화면 크기 선택">
+          <button type="button" data-width="320" data-height="568" aria-pressed="false">작은 화면 <span>320 × 568</span></button>
+          <button type="button" data-width="390" data-height="844" aria-pressed="true">Figma 기준 <span>390 × 844</span></button>
+          <button type="button" data-width="430" data-height="932" aria-pressed="false">큰 화면 <span>430 × 932</span></button>
+        </div>
+        <button class="reset-button" id="reset" type="button">화면·테스트 초기화</button>
+      </section>
+      <section class="panel">
+        <h2>이번에 확인할 동작</h2>
+        <ul class="test-list">
+          <li id="test-first">Google 버튼 클릭과 로딩 표시</li>
+          <li id="test-second">로딩 중 중복 클릭 방지</li>
+          <li id="test-third">닫기(타입 A)와 약관 문구의 클릭 이벤트</li>
+          <li>화면 너비에 따른 여백과 줄바꿈</li>
+        </ul>
+        <p class="scope-note" id="scope-note">입력과 동의는 로컬 목업입니다. 실제 계정·로그인·약관 동의·정보 저장은 처리하지 않습니다.</p>
+      </section>
+      <section class="panel event-panel">
+        <div class="panel-title"><h2>동작 확인</h2><span id="event-count">0</span></div>
+        <p id="event-empty">앱 화면의 버튼을 눌러 보세요.</p>
+        <ol id="event-log" aria-live="polite" aria-relevant="additions"></ol>
+      </section>
+    </aside>
+    <section class="device-stage" aria-label="앱 미리보기">
+      <div class="device-caption"><span id="screen-label">홈 A · 이슈 이미지</span><span id="viewport-label">390 × 844</span></div>
+      <iframe id="app-preview" title="AllEarth 홈 A · 이슈 이미지" src="home.html?from=a&amp;v=20261102-zoom-cap" width="390" height="844"></iframe>
+      <p class="stage-note">HTML 앱 화면을 기기 영역에 표시합니다. Figma 원본과 별도로 동작합니다.</p>
+    </section>
+  </main>
+</body>
+</html>

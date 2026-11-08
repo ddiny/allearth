@@ -1,0 +1,15 @@
+/* Completion feedback is a prototype extension using the shared brand tokens, not an unprovided Figma screen. */
+.complete-actions { margin-bottom: max(92px, env(safe-area-inset-bottom, 0px)); }
+.completion-message { gap: 0; }
+.demo-caption {
+  width: min(390px, 100%);
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-mute);
+  text-align: center;
+}
+body { grid-template-columns: minmax(0, 1fr); }
+body[data-embedded] .demo-caption { display: none; }
+/* Programmatic heading focus announces the new screen; the actionable button keeps its focus ring. */
+#complete-title:focus { outline: none; }

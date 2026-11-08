@@ -1,22 +1,25 @@
 name: 매일 카드뉴스 만들기
-# 목적: 앱에 보이는 내용을 그대로 인스타에. 기본은 앱 데이터(source=app)예요.
-#   앱에 실제 화제가 없으면(예시만 있으면) 카드를 만들지 않아요.
-# 그 밖의 선택: trends = 구글 트렌드 + 무료 번역(앱과 내용이 달라요), app-test = 앱 예시 데이터로 테스트만
+# 목적: AllEarth 앱에 보이는 화제를 그대로 인스타에.
+#   원본: app/assets/topics/topics.js (앱 화면이 읽는 파일과 같아요). 이 파일을 고쳐 올리면 카드도 바로 다시 만들어져요.
+# 그 밖의 선택(예전 방식): app = 예전 앱(Supabase), app-test = 예전 앱 예시로 테스트, trends = 구글 트렌드 + 번역
 # 만든 이미지는 cards-images 브랜치에 올라가요. 인스타가 그 공개 주소에서 이미지를 가져가요.
 on:
   schedule:
     - cron: '13 22 * * *'      # 매일 22:13 UTC = 한국 시간 아침 7:13
+  push:                        # 앱 화제 파일이 바뀌면 바로 다시 만들어요
+    branches: [main]
+    paths: ['app/assets/topics/**']
   workflow_dispatch:
     inputs:
       source:
-        description: '데이터 출처 (app = 앱에 보이는 화제, app-test = 앱 예시 데이터로 테스트만, trends = 구글 트렌드 + 번역)'
+        description: '데이터 출처 (allearth = AllEarth 앱 화제, 나머지는 예전 방식)'
         type: choice
-        options: [app, app-test, trends]
-        default: app
+        options: [allearth, app, app-test, trends]
+        default: allearth
       count:
-        description: '화제 카드 수 (1~18). 8 이하면 자동 게시 가능, 9 이상은 앱에서 직접 올리기용(최대 20장)'
+        description: '화제 카드 수 (비우면 AllEarth 9개·그 밖 8개). 10장 넘으면 앱에서 직접 올리기용'
         type: string
-        default: '8'
+        default: ''
       exclude:
         description: '뺄 나라 코드 (예: JP,US). 비우면 전체'
         type: string
@@ -43,10 +46,10 @@ jobs:
         id: cards
         run: node collector/cards.mjs
         env:
-          CARDS_SOURCE: ${{ inputs.source == 'app-test' && 'app' || inputs.source || 'app' }}
+          CARDS_SOURCE: ${{ inputs.source == 'app-test' && 'app' || inputs.source || 'allearth' }}
           CARDS_ALLOW_SAMPLE: ${{ inputs.source == 'app-test' && '1' || '' }}
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
-          CARDS_COUNT: ${{ inputs.count || '8' }}
+          CARDS_COUNT: ${{ inputs.count }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}
           CARDS_HANDLE: ${{ vars.CARDS_HANDLE }}
       - name: 내려받기용으로 보관

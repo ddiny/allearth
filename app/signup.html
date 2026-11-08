@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFEFB">
+  <title>AllEarth · 가입 정보</title>
+  <link rel="icon" href="assets/figma/brand-symbol.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="signup.css">
+  <script src="app-state.js" defer></script>
+  <script src="signup.js" defer></script>
+</head>
+<body>
+  <main class="app-screen signup-screen" data-screen="signup" data-node-id="3499:2868" aria-labelledby="signup-title">
+    <div class="status-bar" aria-hidden="true">
+      <span class="status-time">9:41</span>
+      <span class="status-indicators"><img src="assets/figma/status-indicators.svg" alt=""></span>
+    </div>
+    <button class="icon-button close-button" type="button" data-action="close" aria-label="가입 화면 닫기"><img src="assets/figma/close.svg" alt=""></button>
+    <form class="signup-form" novalidate>
+      <p class="signup-eyebrow">Google 계정으로 가입 중</p>
+      <h1 id="signup-title">지구에서 쓸<br>이름을 정해주세요</h1>
+      <section class="field" data-field="handle">
+        <div class="field-label"><label for="handle">공개 사용자명 <span>(선택)</span></label><span id="handle-hint">영문 소문자·숫자·_ · 4~16자</span></div>
+        <input id="handle" name="handle" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="@ 자동으로 정해드려요" aria-describedby="handle-hint handle-error">
+        <p class="field-error" id="handle-error" aria-live="polite"></p>
+      </section>
+      <section class="field" data-field="nickname">
+        <div class="field-label"><label for="nickname">닉네임</label><span id="nickname-hint">1~10자 · 한글·영문·숫자·_</span></div>
+        <input id="nickname" name="nickname" type="text" autocomplete="nickname" placeholder="지구여행자" maxlength="10" aria-describedby="nickname-hint nickname-error" required>
+        <p class="field-error" id="nickname-error" aria-live="polite"></p>
+      </section>
+      <section class="consents" aria-label="필수 약관 동의">
+        <label class="consent all-consent"><input id="consent-all" type="checkbox"><span class="checkbox" aria-hidden="true"></span><span>전체 동의</span></label>
+        <div class="consent required-consent-row"><label class="consent-choice"><input class="required-consent" id="consent-privacy" type="checkbox"><span class="checkbox" aria-hidden="true"></span><strong>필수</strong><span>개인정보 수집·이용에 동의합니다</span></label><button class="privacy-link" type="button" data-action="privacy">보기</button></div>
+        <div class="consent required-consent-row"><label class="consent-choice"><input class="required-consent" id="consent-age" type="checkbox"><span class="checkbox" aria-hidden="true"></span><strong>필수</strong><span>만 14세 이상입니다</span></label></div>
+      </section>
+      <button class="signup-submit" type="submit" disabled>가입 완료</button>
+      <p class="signup-footnote">Google 계정으로 로그인하며, 별도 로그인 아이디는 필요하지 않아요. 사용자명은 비워두면 자동으로 정해드려요.</p>
+    </form>
+  </main>
+  <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-title">
+    <h2 id="privacy-title">개인정보 수집·이용 안내</h2>
+    <p>이 화면은 프로토타입입니다. 실제 개인정보 처리방침 원문은 아직 연결되지 않았습니다.</p>
+    <button type="button" data-action="close-dialog">닫기</button>
+  </dialog>
+</body>
+</html>

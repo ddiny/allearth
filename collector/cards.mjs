@@ -4,7 +4,9 @@
 //  3) HTML 카드를 1080×1350 JPEG로 찍어요  4) 캡션과 미리보기도 같이 만들어요
 //
 // 환경 변수
-//  CARDS_SOURCE  app(기본) | trends
+//  CARDS_SOURCE  allearth(기본) | app | trends
+//                allearth = AllEarth 앱의 화제 파일(app/assets/topics/topics.js)을 글자 그대로
+//                (아래 app·trends 는 예전 방식)
 //                app    = 앱에 노출되는 데이터 (index.html 의 SUPABASE_URL·SUPABASE_KEY 로 읽기만 해요)
 //                trends = 구글 트렌드 급상승 검색어를 원문 그대로 (앱 데이터가 없을 때 대안)
 //  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US)
@@ -23,12 +25,14 @@ import { chromium } from 'playwright';
 import { W, H, FONT_URL, COUNTRY, CITY_KO, coverHtml, topicHtml, outroHtml, sheetHtml, dateParts } from './cards/template.mjs';
 import { loadTrends, trafficKo } from './trends.mjs';
 import { toKorean, engine } from './translate.mjs';
+import { loadAllEarth } from './allearth.mjs';
 
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
-const SOURCE = (process.env.CARDS_SOURCE || 'app').toLowerCase();
+const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase();
+const EDITORIAL = SOURCE === 'allearth';
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));
 const ALLOW_SAMPLE = /^(1|true|yes)$/i.test(process.env.CARDS_ALLOW_SAMPLE || '');   // 테스트: 앱의 예시 데이터로도 만들기
-const AI = SOURCE !== 'trends';   // 앱 데이터는 AI가 한국어로 요약한 것, 구글 트렌드는 원문 그대로
+const AI = SOURCE === 'app';   // 앱 데이터는 AI가 한국어로 요약한 것, 구글 트렌드는 원문 그대로
 
 /* 앱(index.html)에 들어 있는 Supabase 공개 주소와 publishable 키를 그대로 읽어요. 앱을 바꾸면 카드도 따라가요 */
 function appConfig() {
@@ -46,7 +50,8 @@ function loadFont() {
   } catch { console.warn('⚠ pretendard 패키지가 없어서 Noto Sans KR로 그려요 (npm install pretendard)'); return null; }
 }
 
-const COUNT = Math.min(18, Math.max(1, parseInt(process.env.CARDS_COUNT || '8', 10) || 8));
+/* 화제 카드 수: AllEarth 앱은 기본으로 전부(최대 9개 = 표지 포함 10장), 그 밖은 8개 */
+const COUNT = Math.min(18, Math.max(1, parseInt(process.env.CARDS_COUNT || (EDITORIAL ? '9' : '8'), 10) || 8));
 const OUT = process.env.CARDS_OUT || 'out/cards';
 const log = (...a) => console.log(...a);
 const kstDate = iso => new Date(new Date(iso).getTime() + 9 * 3600e3).toISOString().slice(0, 10);
@@ -54,6 +59,11 @@ const kstDate = iso => new Date(new Date(iso).getTime() + 9 * 3600e3).toISOStrin
 /* ---------- 1. 데이터 읽기 ---------- */
 async function loadRows() {
   if (process.env.CARDS_INPUT) return JSON.parse(await readFile(process.env.CARDS_INPUT, 'utf8'));
+  if (EDITORIAL) {
+    const d = loadAllEarth();
+    log(`AllEarth 앱 화제를 읽어요 (topics.js · ${d.dateLabel} · ${d.rows.length}개)`);
+    return d.rows;
+  }
   if (SOURCE === 'trends') {
     log('구글 트렌드에서 나라별 급상승 검색어를 읽어요…');
     const names = Object.fromEntries(Object.entries(COUNTRY).map(([cc, c]) => [cc, c.ko]));
@@ -79,7 +89,8 @@ async function loadRows() {
 const RANK = { hot: 0, rising: 1, new: 2, talked: 3 };
 function pick(rows) {
   const live = rows.filter(r => (ALLOW_SAMPLE || !r.is_sample) && COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title && r.short_desc);
-  const sorted = [...live].sort((a, b) => (b.heat || 0) - (a.heat || 0) || (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9));
+  /* 앱 화제는 앱에 적힌 순서 그대로, 그 밖은 검색량 순 */
+  const sorted = EDITORIAL ? [...live].sort((a, b) => a.order - b.order) : [...live].sort((a, b) => (b.heat || 0) - (a.heat || 0) || (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9));
   const best = new Map();
   for (const r of sorted) { const k = ALLOW_SAMPLE ? r.id : r.cc; if (!best.has(k)) best.set(k, r); }   // 테스트는 앱에 있는 화제를 전부
   const countries = new Set([...best.values()].map(r => r.cc)).size;
@@ -89,7 +100,9 @@ function pick(rows) {
     why: Array.isArray(r.why) ? r.why : [], what: Array.isArray(r.what) ? r.what : [],
     news: (r.trend_news || []).slice().sort((a, b) => String(b.published_on).localeCompare(String(a.published_on))),
     image_url: r.image_url || null, image_credit: r.image_credit || null, image_link: r.image_link || null, heat: r.heat || 0,
-    traffic: r.traffic || 0, ai: AI
+    traffic: r.traffic || 0, ai: AI,
+    kind: EDITORIAL ? 'allearth' : SOURCE, category_label: r.category_label || '', when: r.when || '',
+    image_alt: r.image_alt || '', image_position: r.image_position || '', source_name: r.source_name || '', source_url: r.source_url || ''
   }));
   const latest = live.map(r => r.published_at).filter(Boolean).sort().pop();
   return { topics, countries, date: latest ? kstDate(latest) : kstDate(new Date().toISOString()) };
@@ -131,6 +144,21 @@ async function shoot(page, html, file) {
 /* ---------- 4. 캡션 ---------- */
 function caption({ date, topics, countries, translated }) {
   const dp = dateParts(date);
+  if (EDITORIAL) return [
+    `${dp.ko}, AllEarth 지구 근황`,
+    '',
+    `${countries}개국에서 지금 일어나는 이야기를 모았어요.`,
+    '',
+    ...topics.map(t => `${COUNTRY[t.cc].ko} | ${t.title}${t.when ? ` (${t.when})` : ''}`),
+    '',
+    '출처',
+    ...topics.filter(t => t.source_name).map(t => `${COUNTRY[t.cc].ko}: ${t.source_name}`),
+    '',
+    '이미지',
+    ...topics.filter(t => t.photoShown && t.image_credit).map(t => `${COUNTRY[t.cc].ko}: ${t.image_credit.replace(/^(이미지|사진):\s*/, '')}`),
+    '',
+    '#AllEarth #올어스 #지구근황 #세계여행 #해외이슈 #' + topics.map(t => COUNTRY[t.cc].ko).slice(0, 3).join(' #')
+  ].join('\n');
   const photos = [...new Set(topics.filter(t => t.photoShown && t.image_credit).map(t => t.image_credit))];
   return [
     ...(ALLOW_SAMPLE ? ['[테스트 · 앱 예시 데이터로 만든 카드예요]', ''] : []),
@@ -168,7 +196,9 @@ export async function main() {
   if (!topics.length) throw new Error('카드로 만들 화제가 없어요 (실제 수집 데이터가 아직 없거나 모두 샘플이에요)');
   const dir = `${OUT}/${date}`;
   await mkdir(dir, { recursive: true });
-  const total = topics.length + 2;
+  /* 자동 게시 한도(10장) 안에서 화제를 우선해요: 화제 9개면 마지막 장을 빼고 10장 */
+  const withOutro = topics.length + 2 <= 10 || topics.length + 1 > 10;
+  const total = topics.length + 1 + (withOutro ? 1 : 0);
   log(`${date} · ${countries}개국 중 ${topics.length}개 화제 → 카드 ${total}장`);
 
   const browser = await chromium.launch();
@@ -178,9 +208,9 @@ export async function main() {
   const files = [], warn = [];
   try {
     const slides = [
-      { name: '01-cover.jpg', html: coverHtml({ date, topics, countryCount: countries, total, handle: HANDLE }) },
+      { name: '01-cover.jpg', html: coverHtml({ date, topics, countryCount: countries, total, handle: HANDLE, source: EDITORIAL ? 'allearth' : SOURCE }) },
       ...topics.map((t, i) => ({ name: `${String(i + 2).padStart(2, '0')}-${t.cc.toLowerCase()}.jpg`, html: topicHtml(t, { index: i + 2, total, handle: HANDLE }), t })),
-      { name: `${String(total).padStart(2, '0')}-outro.jpg`, html: outroHtml({ topics, restCount: countries - topics.length, total, handle: HANDLE, ai: AI, translated }) }
+      ...(withOutro ? [{ name: `${String(total).padStart(2, '0')}-outro.jpg`, html: outroHtml({ topics, restCount: countries - topics.length, total, handle: HANDLE, ai: AI, translated, source: EDITORIAL ? 'allearth' : SOURCE }) }] : [])
     ];
     for (const s of slides) {
       const r = await shoot(page, s.html, `${dir}/${s.name}`);
@@ -199,7 +229,11 @@ export async function main() {
   await writeFile(`${dir}/caption.txt`, cap + '\n');
   await writeFile(`${dir}/cards.json`, JSON.stringify({ date, countries, slides: files.map(f => f.name), topics: topics.map(t => ({ cc: t.cc, title: t.title, photo: t.photoShown ? { credit: t.image_credit, link: t.image_link } : null })) }, null, 1));
 
-  const summary = `## 카드뉴스 (${date})\n${countries}개국 중 ${topics.length}개 화제, 카드 ${total}장\n\n` +
+  /* 앱 화제 날짜가 오래됐으면 알려줘요 (요약에 '오늘', '내일' 같은 말이 있어서 늦게 올리면 틀린 말이 돼요) */
+  const age = Math.round((Date.parse(kstDate(new Date().toISOString())) - Date.parse(date)) / 864e5);
+  if (EDITORIAL && age >= 1) warn.unshift(`앱 화제 날짜가 ${date}로 ${age}일 지났어요. 요약의 '오늘'·'내일' 같은 표현이 지금과 맞지 않을 수 있어요. topics.js 를 새로 고친 뒤 올리는 걸 추천해요.`);
+  if (age >= 1) log(`  ⚠ 화제 날짜 ${date} · ${age}일 지남`);
+  const summary = `## 카드뉴스 (${date}${EDITORIAL ? ' · AllEarth 앱 화제' : ''})\n${countries}개국 ${topics.length}개 화제, 카드 ${total}장\n\n` +
     topics.map((t, i) => `${i + 2}. **${t.cc}** ${t.title}`).join('\n') +
     (warn.length ? `\n\n확인 필요:\n${warn.map(w => '- ' + w).join('\n')}` : '') +
     '\n';

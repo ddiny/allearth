@@ -1,0 +1,271 @@
+/*
+ * Figma 3499:2846 — login A, 390 × 844.
+ * The status bar, centered hero, and bottom actions share a CSS grid layer.
+ * This preserves Figma's anchors without absolutely positioning every text.
+ */
+* { box-sizing: border-box; }
+
+html { min-width: 280px; background: #bfbfbf; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--color-ink);
+  font-family: var(--font-kr);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: wait; }
+button:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 5px; }
+img { display: block; }
+[hidden] { display: none !important; }
+
+.app-screen {
+  position: relative;
+  isolation: isolate;
+  width: 390px;
+  max-width: 100%;
+  height: 844px;
+  min-height: 560px;
+  display: grid;
+  grid-template: "screen" 1fr / minmax(0, 1fr);
+  background: var(--color-paper);
+}
+
+.status-bar,
+.close-button,
+.login-hero,
+.login-actions { grid-area: screen; }
+
+.status-bar {
+  align-self: start;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 6px 28px 0 32px;
+  gap: 16px;
+  user-select: none;
+}
+
+.status-time {
+  font-size: var(--font-button-size);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-kr);
+}
+
+.status-indicators {
+  position: relative;
+  width: 46px;
+  height: 12px;
+  margin-left: auto;
+}
+
+/* Each SVG keeps its exported root size: symbol 44, close 24, indicators 43×12. */
+.icon-button {
+  border: 0;
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  color: var(--color-ink);
+}
+
+.close-button {
+  z-index: 1;
+  justify-self: end;
+  align-self: start;
+  margin-top: 44px;
+  margin-right: 8px;
+}
+
+.icon-button:active { opacity: 0.65; }
+
+.login-hero {
+  align-self: center;
+  justify-self: center;
+  width: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transform: translateY(-0.5px);
+}
+
+.brand-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 114px;
+  height: 84px;
+}
+
+.brand-symbol { flex-shrink: 0; }
+
+.brand-wordmark {
+  color: var(--color-ink);
+  font-family: var(--font-en);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+h1 {
+  width: 100%;
+  margin: 25px 0 10px;
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight-kr);
+  line-height: var(--font-heading-leading-kr);
+  letter-spacing: var(--tracking-kr);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.welcome-description {
+  width: 100%;
+  margin: 0;
+  color: var(--color-mute);
+  font-size: var(--font-body-size);
+  font-weight: 400;
+  line-height: var(--font-body-leading);
+  letter-spacing: var(--tracking-kr);
+  word-break: keep-all;
+}
+
+.login-actions {
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: max(60px, env(safe-area-inset-bottom, 0px));
+}
+
+.button-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: calc(100% - 48px);
+  height: 52px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-ink);
+  color: var(--color-white);
+  font-size: var(--font-button-size);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-kr);
+  transition: background-color var(--duration-press) ease;
+}
+
+/* Guide adoption: pressed alpha belongs to the fill, not the whole label. */
+.button-google:active:not(:disabled) { background: rgb(35 38 44 / 80%); }
+
+.google-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-family: var(--font-en);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0;
+}
+
+.button-label { white-space: nowrap; }
+
+.button-google[aria-busy="true"] .google-mark {
+  color: transparent;
+  background: transparent;
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-top-color: var(--color-white);
+  animation: busy-spin 700ms linear infinite;
+}
+
+.legal-copy {
+  width: calc(100% - 40px);
+  margin: 0;
+  color: var(--color-mute);
+  text-align: center;
+  font-size: var(--font-caption-size);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0;
+  word-break: keep-all;
+}
+
+.legal-link {
+  position: relative;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  line-height: inherit;
+}
+
+.legal-link::after {
+  content: "";
+  position: absolute;
+  inset: -8px 0;
+}
+
+.legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+.legal-link[data-action="privacy"] {
+  color: var(--color-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.legal-link[data-action="privacy"]:focus-visible {
+  outline-color: var(--color-link);
+}
+
+/* Only shown after an action when this file is opened outside the test harness. */
+.prototype-notice {
+  position: fixed;
+  z-index: 5;
+  left: 50%;
+  bottom: 16px;
+  width: min(350px, calc(100% - 32px));
+  margin: 0;
+  padding: 14px 16px;
+  transform: translateX(-50%);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sheet);
+  background: var(--color-white);
+  color: var(--color-ink);
+  box-shadow: 0 8px 24px rgb(35 38 44 / 12%);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@keyframes busy-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 430px) {
+  html { background: var(--color-paper); }
+  body { padding: 0; }
+  .app-screen { width: 100%; height: 100dvh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

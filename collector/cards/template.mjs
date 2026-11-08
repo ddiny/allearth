@@ -67,8 +67,13 @@ export function poster(pat, cc, seed) {
   return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="${bg}"/>${g}</svg>`;
 }
 
-const STAR = '<svg viewBox="0 0 24 24"><path d="M12 0C12.8 7 17 11.2 24 12C17 12.8 12.8 17 12 24C11.2 17 7 12.8 0 12C7 11.2 11.2 7 12 0Z"/></svg>';
-const LOGO = `<span class="logo">ath${STAR}</span>`;
+/* AllEarth 로고: 앱의 브랜드 파일(brand/*.svg)을 그대로 써요. 색은 글자색(currentColor)을 따라가요 */
+const brandSvg = name => readFileSync(new URL(`./brand/${name}.svg`, import.meta.url), 'utf8')
+  .replace(/<svg[^>]*viewBox="([^"]+)"[^>]*>/, '<svg viewBox="$1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">')
+  .replace(/fill="#23262C"/gi, 'fill="currentColor"');
+/* 앱 홈 화면처럼 심볼 로고를 써요 (brand-horizontal 은 '⊕rth' 짧은 조합이라 단독으로 쓰면 이름이 잘 안 읽혀요) */
+const LOGO = `<span class="logo" aria-label="AllEarth">${brandSvg('brand-symbol')}</span>`;
+const SYMBOL = `<span class="logo logo--symbol" aria-label="AllEarth">${brandSvg('brand-symbol')}</span>`;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON = {
   save: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
@@ -77,9 +82,12 @@ const ICON = {
 };
 /* 스타일은 모두 cards.css 한 파일에 있어요 (design/*.html 예시도 같은 파일을 써요) */
 const CSS = readFileSync(new URL('./cards.css', import.meta.url), 'utf8');
-const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,700..900&family=DM+Mono:wght@500&family=Noto+Sans+KR:wght@500;700;900&display=block">';
-const FONT_FACE = `@font-face { font-family:'Pretendard'; src:url('${FONT_URL}') format('woff2'); font-weight:45 920; font-display:block; }`;
-const page = body => `<!doctype html><html lang="ko"><head><meta charset="utf-8">${FONTS}<style>${FONT_FACE}\n${CSS}</style></head><body>${body}</body></html>`;
+/* 폰트: 앱과 같은 Pretendard(한글) + Poppins(영문·숫자). Poppins 는 앱의 파일을 그대로 넣어요 */
+const font64 = f => readFileSync(new URL(`./brand/${f}`, import.meta.url)).toString('base64');
+const FONT_FACE = `@font-face { font-family:'Pretendard'; src:url('${FONT_URL}') format('woff2'); font-weight:45 920; font-display:block; }
+@font-face { font-family:'Poppins'; src:url(data:font/ttf;base64,${font64('Poppins-Regular.ttf')}) format('truetype'); font-weight:400; }
+@font-face { font-family:'Poppins'; src:url(data:font/ttf;base64,${font64('Poppins-Bold.ttf')}) format('truetype'); font-weight:700; }`;
+const page = body => `<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>${FONT_FACE}\n${CSS}</style></head><body>${body}</body></html>`;
 const handleHtml = handle => handle ? `<span class="handle">${esc(handle)}</span>` : LOGO.replace('class="logo"', 'class="logo logo--sm"');
 
 /* 날짜 표기: '2026-11-06' -> { dot:'2026.11.06', ko:'11월 6일', dow:'FRI' } */
@@ -88,61 +96,84 @@ export function dateParts(iso) {
   return { dot: `${d.getUTCFullYear()}.${pad(d.getUTCMonth() + 1)}.${pad(d.getUTCDate())}`, ko: `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`, dow: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getUTCDay()] };
 }
 
+/* 데이터 출처별 문구
+   allearth = AllEarth 앱의 편집 화제(topics.js) · trends = 구글 트렌드 · app = 예전 앱(AI 요약) */
+const COPY = {
+  allearth: n => ({ pill: 'AllEarth 지구 근황', h1: `${n}개국에서 지금<br><mark>일어나는 이야기</mark>`, foot: 'AllEarth가 고른 이야기' }),
+  trends: n => ({ pill: '오늘의 지구 근황', h1: `지금 ${n}개국이<br><mark>가장 많이 검색한</mark><br>이야기`, foot: '구글 트렌드 급상승 검색어 기준' }),
+  app: n => ({ pill: '오늘의 지구 근황', h1: `지금 ${n}개국이<br><mark>가장 많이 검색한</mark><br>이야기`, foot: '구글 트렌드 급상승 검색어 기준' })
+};
+
 /* ---------- 1장: 표지 ---------- */
-export function coverHtml({ date, topics, countryCount, total, handle }) {
-  const dp = dateParts(date), compact = topics.length > 8;
+export function coverHtml({ date, topics, countryCount, total, handle, source = 'trends' }) {
+  const dp = dateParts(date), compact = topics.length > 9, c = (COPY[source] || COPY.trends)(countryCount);
   const tiles = topics.map((t, i) => {
     const co = COUNTRY[t.cc];
-    return `<li><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><span>${esc(co.ko)}</span><b>${esc(t.title)}</b></div><i class="mono">${pad(i + 2)}</i></li>`;
+    return `<li><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><span>${esc(co.ko)}${t.category_label ? ` · ${esc(t.category_label)}` : ''}</span><b>${esc(t.title)}</b></div><i class="mono">${pad(i + 2)}</i></li>`;
   }).join('');
-  return page(`<div class="card s-cover${compact ? ' compact' : ''}">
+  return page(`<div class="card s-cover${compact ? ' compact' : ''}${topics.length === 9 ? ' nine' : ''}">
   <div class="top">${LOGO}<span class="mono date">${dp.dot} ${dp.dow}</span></div>
-  <div class="pill">오늘의 지구 근황</div>
-  <h1>지금 ${countryCount}개국이<br><mark>가장 많이 검색한</mark><br>이야기</h1>
+  <div class="pill">${esc(c.pill)}</div>
+  <h1>${c.h1}</h1>
   <ul class="list">${tiles}</ul>
-  <div class="foot"><span>구글 트렌드 급상승 검색어 기준 · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
+  <div class="foot"><span>${esc(c.foot)} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
 
-/* ---------- 2~9장: 나라별 화제 ---------- */
+/* ---------- 2장~: 나라별 화제 ---------- */
 export function topicHtml(t, { index, total, handle }) {
   const co = COUNTRY[t.cc];
   const sub = [co.en, t.area].filter(Boolean).join(' · ');
   const why = (t.why || []).slice(0, 3).map((w, i) => `<li data-drop><i class="mono">${pad(i + 1)}</i><span>${esc(w)}</span></li>`).join('');
   const sources = [...new Set((t.news || []).map(n => n.source).filter(Boolean))].slice(0, 2);
-  const credit = t.image_url && t.image_credit ? `Photo ${esc(t.image_credit)} / Pexels` : '';
-  const img = t.image_url ? `<img class="photo" src="${esc(t.image_url)}" alt="" data-photo>` : '';
+  const editorial = t.kind === 'allearth';
+  const img = t.image_url ? `<img class="photo" src="${esc(t.image_url)}" alt="${esc(t.image_alt || '')}" data-photo${t.image_position ? ` style="object-position:${esc(t.image_position)}"` : ''}>` : '';
   const st = t.status in STATUS ? t.status : 'rising';
-  return page(`<div class="card s-topic" data-fit>
+  const badge = editorial ? '<div class="badge badge--new">TODAY</div>' : `<div class="badge badge--${st}">${STATUS[st]}</div>`;
+  const chip = t.category_label || CATEGORY[t.category] || '';
+  /* 사진 출처: 앱 화제는 앱에 적힌 문구를 그대로 사진 아래에, 그 밖은 사진 위에 작게 */
+  const creditOver = !editorial && t.image_url && t.image_credit ? `<div class="credit mono" data-credit>Photo ${esc(t.image_credit)} / Pexels</div>` : '';
+  const creditLine = editorial && t.image_url && t.image_credit ? `<p class="credit-line" data-credit>${esc(t.image_credit)}</p>` : '';
+  const footLeft = editorial
+    ? (t.source_name ? `출처 · ${esc(t.source_name)}` : '')
+    : `출처 Google 트렌드${sources.length ? ' · ' + sources.map(esc).join(', ') : ''}${t.ai === false ? (t.translated ? ' · 자동 번역' : '') : ' · AI 요약'}`;
+  return page(`<div class="card s-topic${editorial ? ' editorial' : ''}" data-fit>
   <div class="top">
     <div class="who"><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><b>${esc(co.ko)}</b><span class="mono">${esc(sub)}</span></div></div>
     <span class="count mono">${pad(index)} / ${pad(total)}</span>
   </div>
   <div class="art${img ? ' has-photo' : ''}" style="--cc:${co.c[0]};--cc2:${co.c[1]}">${poster(t.pattern || 0, t.cc, t.title)}<img class="big-flag sticker" src="${flagSrc(t.cc)}" alt="">${img}
-    <div class="badge badge--${st}">${STATUS[st]}</div>
-    ${t.category in CATEGORY ? `<div class="chip"># ${CATEGORY[t.category]}</div>` : ''}
-    ${credit ? `<div class="credit mono" data-credit>${credit}</div>` : ''}
+    ${badge}
+    ${chip ? `<div class="chip"># ${esc(chip)}</div>` : ''}
+    ${creditOver}
   </div>
+  ${creditLine}
   <h2 data-shrink><mark>${esc(t.title)}</mark></h2>
+  ${t.when ? `<p class="when mono">${esc(t.when)}</p>` : ''}
   <p class="short">${esc(t.short_desc)}</p>
   ${why ? `<ul class="why">${why}</ul>` : ''}
-  <div class="foot"><span>출처 Google 트렌드${sources.length ? ' · ' + sources.map(esc).join(', ') : ''}${t.ai === false ? (t.translated ? ' · 자동 번역' : '') : ' · AI 요약'}</span>${handleHtml(handle)}</div>
+  <div class="foot"><span>${footLeft}</span>${handleHtml(handle)}</div>
 </div>`);
 }
 
 /* ---------- 마지막 장 ---------- */
-export function outroHtml({ topics, restCount, total, handle, ai = true, translated = '' }) {
+export function outroHtml({ topics, restCount, total, handle, ai = true, translated = '', source = '' }) {
   const many = topics.length > 8;
   const flags = topics.slice(0, 18).map(t => `<img class="flag sticker" src="${flagSrc(t.cc)}" alt="">`).join('');
-  const acts = [['save', '저장하기', '내일 또 보기'], ['share', '공유하기', '친구에게 보내기'], ['follow', '팔로우', '매일 아침 받기']]
+  const acts = [['save', '저장하기', '다시 보기'], ['share', '공유하기', '친구에게 보내기'], ['follow', '팔로우', '새 이야기 받기']]
     .map(([k, a, b]) => `<li><span>${ICON[k]}</span><b>${a}</b><em>${b}</em></li>`).join('');
+  const h2 = source === 'allearth' ? `더 많은 나라 이야기는<br><mark>AllEarth</mark>에서 만나요`
+    : !ai ? `내일 아침에도<br><mark>세계 검색어</mark>를<br>모아 올게요` : restCount > 0 ? `나머지 <mark>${restCount}개국</mark> 소식은<br>앱에서 볼 수 있어요` : `더 자세한 소식은<br><mark>앱에서</mark> 볼 수 있어요`;
+  const sub = source === 'allearth' ? '지구본을 돌려 나라별 이야기를 둘러보세요.' : ai ? '매일 밤 12시(한국 시간)에 새 화제로 바뀌어요.' : '매일 아침 7시, 나라별 급상승 검색어를 카드로 정리해요.';
+  const note = source === 'allearth' ? '이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.'
+    : ai ? '구글 트렌드 급상승 검색어와 관련 뉴스를 AI가 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.' : translated ? `구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 ${esc(translated)}로 자동 번역했어요.` : '구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 원문 그대로 실었어요.';
   return page(`<div class="card s-outro${many ? ' many' : ''}">
   <div class="top">${LOGO}<span class="count mono">${pad(total)} / ${pad(total)}</span></div>
   <div class="flags">${flags}</div>
-  <h2>${!ai ? `내일 아침에도<br><mark>세계 검색어</mark>를<br>모아 올게요` : restCount > 0 ? `나머지 <mark>${restCount}개국</mark> 소식은<br>앱에서 볼 수 있어요` : `더 자세한 소식은<br><mark>앱에서</mark> 볼 수 있어요`}</h2>
-  <p class="sub">${ai ? '매일 밤 12시(한국 시간)에 새 화제로 바뀌어요.' : '매일 아침 7시, 나라별 급상승 검색어를 카드로 정리해요.'}</p>
+  <h2>${h2}</h2>
+  <p class="sub">${sub}</p>
   <ul class="acts">${acts}</ul>
-  <p class="note">${ai ? '구글 트렌드 급상승 검색어와 관련 뉴스를 AI가 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.' : translated ? `구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 ${esc(translated)}로 자동 번역했어요.` : '구글 트렌드 급상승 검색어 기준이에요. 검색어와 뉴스 제목은 원문 그대로 실었어요.'}</p>
+  <p class="note">${note}</p>
   ${handle ? `<div class="foot"><span></span>${handleHtml(handle)}</div>` : ''}
 </div>`);
 }

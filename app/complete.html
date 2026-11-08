@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFEFB">
+  <title>AllEarth · 가입 완료</title>
+  <link rel="icon" href="assets/figma/brand-symbol.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="complete.css">
+  <script src="app-state.js" defer></script>
+  <script src="complete.js" defer></script>
+</head>
+<body>
+  <main class="app-screen complete-screen" data-screen="complete" aria-labelledby="complete-title">
+    <div class="status-bar" aria-hidden="true">
+      <span class="status-time">9:41</span>
+      <span class="status-indicators"><img src="assets/figma/status-indicators.svg" alt=""></span>
+    </div>
+    <section class="login-hero completion-message">
+      <img class="brand-symbol" src="assets/figma/brand-symbol.svg" alt="AllEarth">
+      <h1 id="complete-title" tabindex="-1">가입이 완료됐어요</h1>
+      <p class="welcome-description" id="complete-description">나만의 지구가 준비됐어요.</p>
+    </section>
+    <footer class="login-actions complete-actions">
+      <button class="button-google" id="enter-home" type="button">내 지구로 가기</button>
+    </footer>
+  </main>
+  <p class="demo-caption">흐름 확인용 미리보기 · 실제 계정이나 로그인 세션은 생성되지 않습니다.</p>
+</body>
+</html>
