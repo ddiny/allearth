@@ -1,0 +1,38 @@
+name: 인스타에 올리기
+# 이 워크플로를 직접 실행하는 것이 '승인'이에요. 자동으로는 절대 실행되지 않아요.
+# Actions 탭 > 인스타에 올리기 > Run workflow
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '올릴 날짜 (예: 2026-11-08). 비우면 가장 최근 카드'
+        type: string
+        default: ''
+      dry_run:
+        description: '시험 실행 (올리지 않고 확인만)'
+        type: boolean
+        default: false
+      force:
+        description: '다시 올리기 (이미 올린 날짜도)'
+        type: boolean
+        default: false
+concurrency:
+  group: instagram-publish     # 두 번 눌러도 동시에 올라가지 않게
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node collector/instagram.mjs publish
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
+          PUBLISH_DATE: ${{ inputs.date }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          FORCE: ${{ inputs.force }}

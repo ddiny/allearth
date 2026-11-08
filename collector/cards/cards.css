@@ -1,0 +1,161 @@
+/* =====================================================================
+   지구 근황 · 인스타 카드뉴스 스타일
+   - 크기: 1080 × 1350 (인스타 4:5 세로형)
+   - 프로필 격자에서는 좌우가 약 34px씩 잘려 보여서, 중요한 내용은 좌우 64px 안쪽에 둬요.
+   - 이 파일 하나를 두 곳에서 같이 써요.
+       1) design/*.html  브라우저에서 바로 열어보는 예시
+       2) cards.mjs       매일 자동으로 만드는 카드
+     그래서 여기서 고치면 다음 날 카드부터 바로 반영돼요.
+   - 폰트: Pretendard(한글), Anybody(로고·배지), DM Mono(숫자·영문 라벨)
+   ===================================================================== */
+
+:root {
+  --w: 1080px;
+  --h: 1350px;
+  --pad-x: 64px;
+
+  --paper: #F4F1EA;      /* 바탕 (아이보리 종이) */
+  --card: #FFFFFF;       /* 흰 카드 */
+  --ink: #121318;        /* 글자 */
+  --ink-2: #3A3D47;      /* 본문 */
+  --mute: #7A7D88;       /* 보조 글자 */
+  --line: rgba(18,19,24,.12);
+  --accent: #C8FF2E;     /* 형광펜·포인트 */
+  --hot: #FF4A2B;        /* HOT 배지 */
+  --cc: #3340FF;         /* 나라 색 (카드마다 바뀌어요) */
+
+  --f-body: 'Pretendard', 'Pretendard Variable', 'Noto Sans KR', sans-serif;
+  --f-display: 'Anybody', 'Pretendard', sans-serif;
+  --f-mono: 'DM Mono', 'Pretendard', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: var(--w); height: var(--h); overflow: hidden; }
+body {
+  font: 500 30px/1.5 var(--f-body);
+  color: var(--ink);
+  background: var(--paper);
+  letter-spacing: -.02em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+/* 종이 질감 (옅은 노이즈) */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: .07;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ---------- 공통 ---------- */
+.card {
+  position: relative; width: var(--w); height: var(--h); overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: 60px var(--pad-x) 56px;
+}
+.mono { font-family: var(--f-mono); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+.logo { display: inline-flex; align-items: flex-start; font: 900 46px/1 var(--f-display); font-stretch: 75%; letter-spacing: -.01em; }
+.logo svg { width: .42em; height: .42em; margin-left: .06em; fill: currentColor; }
+.logo--sm { font-size: 30px; }
+.handle { font-family: var(--f-mono); font-size: 17px; letter-spacing: .06em; }
+
+/* 형광펜 강조: <mark>강조할 말</mark> */
+mark {
+  color: inherit;
+  background: linear-gradient(transparent 56%, var(--accent) 56%, var(--accent) 94%, transparent 94%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  padding: 0 .08em; margin: 0 -.04em;
+}
+
+/* 국기 */
+.flag { display: block; object-fit: cover; border-radius: 10px; background: #fff; box-shadow: 0 0 0 2px rgba(18,19,24,.08), 0 6px 14px rgba(18,19,24,.14); }
+.sticker { border: 6px solid #fff; border-radius: 14px; box-shadow: 0 10px 24px rgba(18,19,24,.22); }
+
+.top { flex: none; display: flex; justify-content: space-between; align-items: center; }
+.date { font-size: 21px; color: var(--ink-2); }
+.count { height: 48px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: var(--paper); display: inline-flex; align-items: center; font-size: 20px; }
+.foot { flex: none; margin-top: auto; padding-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 24px; font-size: 19px; color: var(--mute); letter-spacing: -.01em; }
+
+/* =====================================================================
+   1장 · 표지  (.card.s-cover)
+   ===================================================================== */
+.s-cover .pill {
+  margin-top: 54px; align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 24px;
+  border-radius: 999px; background: var(--ink); color: #fff; font-size: 23px; font-weight: 700; letter-spacing: -.01em;
+}
+.s-cover .pill::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+.s-cover h1 { margin-top: 30px; font: 860 106px/1.13 var(--f-body); letter-spacing: -.055em; }
+.s-cover .list { list-style: none; margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.s-cover .list li { position: relative; display: flex; align-items: center; gap: 18px; height: 112px; padding: 0 22px; border-radius: 22px; background: var(--card); box-shadow: 0 1px 0 rgba(18,19,24,.06); }
+.s-cover .list .flag { flex: none; width: 68px; height: 51px; border-radius: 8px; }
+.s-cover .list div { min-width: 0; display: flex; flex-direction: column; }
+.s-cover .list span { font-size: 19px; color: var(--mute); font-weight: 600; line-height: 1.3; }
+.s-cover .list b { font-size: 26px; font-weight: 800; line-height: 1.3; letter-spacing: -.035em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-cover .list i { position: absolute; top: 12px; right: 16px; font-size: 14px; color: #B4B6BE; font-style: normal; }
+.s-cover .foot { margin-top: 0; padding-top: 34px; }
+.s-cover .go { display: inline-flex; align-items: center; gap: 14px; font-size: 24px; font-weight: 800; color: var(--ink); }
+.s-cover .go span { width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
+.s-cover .go svg { width: 30px; height: 30px; }
+
+/* 화제가 9개 이상이면 촘촘한 목록 (.compact) */
+.s-cover.compact h1 { font-size: 84px; }
+.s-cover.compact .list { gap: 8px 12px; }
+.s-cover.compact .list li { height: 60px; padding: 0 16px; gap: 14px; border-radius: 16px; }
+.s-cover.compact .list .flag { width: 44px; height: 33px; border-radius: 6px; }
+.s-cover.compact .list span, .s-cover.compact .list i { display: none; }
+.s-cover.compact .list b { font-size: 23px; }
+
+/* =====================================================================
+   2장~ · 나라별 화제  (.card.s-topic)
+   ===================================================================== */
+.s-topic .who { display: flex; align-items: center; gap: 20px; }
+.s-topic .who .flag { width: 92px; height: 69px; border-radius: 12px; }
+.s-topic .who b { display: block; font-size: 36px; font-weight: 850; line-height: 1.15; letter-spacing: -.04em; }
+.s-topic .who span { display: block; margin-top: 4px; font-size: 18px; color: var(--mute); }
+
+/* 사진 영역: 남는 높이를 모두 써요 (글이 길면 줄어들어요) */
+.s-topic .art { position: relative; margin-top: 34px; flex: 1 1 auto; min-height: 300px; border-radius: 34px; overflow: hidden; background: var(--cc); }
+.s-topic .art > svg, .s-topic .art > .photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 사진이 없을 때: 나라 색 줄무늬 + 큰 국기 스티커 */
+.s-topic .art .pattern { position: absolute; inset: 0; background: repeating-linear-gradient(-62deg, var(--cc) 0 34px, var(--cc2, #fff) 34px 52px); opacity: .9; }
+.s-topic .art .big-flag { position: absolute; left: 50%; top: 50%; width: 46%; aspect-ratio: 4 / 3; transform: translate(-50%, -50%) rotate(-5deg); object-fit: cover; }
+.s-topic .art.has-photo .big-flag { display: none; }
+
+.s-topic .badge { position: absolute; top: 26px; right: 26px; width: 138px; height: 138px; border-radius: 50%; display: grid; place-items: center; transform: rotate(-10deg); font: 900 34px/1 var(--f-display); font-stretch: 80%; letter-spacing: .02em; box-shadow: 0 8px 20px rgba(18,19,24,.22); }
+.s-topic .badge--hot { background: var(--hot); color: #fff; }
+.s-topic .badge--rising { background: var(--ink); color: var(--accent); }
+.s-topic .badge--new { background: var(--accent); color: var(--ink); }
+.s-topic .badge--talked { background: #fff; color: var(--ink); font-size: 26px; border: 3px dashed var(--ink); }
+.s-topic .chip { position: absolute; left: 24px; bottom: 24px; height: 46px; padding: 0 20px; border-radius: 999px; background: rgba(255,255,255,.92); display: inline-flex; align-items: center; font-size: 21px; font-weight: 700; color: var(--ink); }
+.s-topic .credit { position: absolute; right: 26px; bottom: 34px; color: rgba(255,255,255,.92); font-size: 15px; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+
+.s-topic h2 { flex: none; margin-top: 42px; font: 860 78px/1.16 var(--f-body); letter-spacing: -.055em; }
+.s-topic .short { flex: none; margin-top: 20px; font-size: 32px; line-height: 1.5; font-weight: 500; color: var(--ink-2); letter-spacing: -.03em; }
+.s-topic .why { flex: none; margin-top: 28px; display: flex; flex-direction: column; gap: 12px; list-style: none; }
+.s-topic .why li { display: flex; align-items: center; gap: 16px; font-size: 27px; font-weight: 700; line-height: 1.3; letter-spacing: -.03em; }
+.s-topic .why i { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--card); display: grid; place-items: center; font-size: 16px; font-style: normal; letter-spacing: 0; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line); }
+
+/* =====================================================================
+   마지막 장  (.card.s-outro)
+   ===================================================================== */
+.s-outro .flags { margin-top: 72px; display: flex; flex-wrap: wrap; gap: 6px 0; }
+.s-outro .flags .flag { width: 118px; height: 89px; margin-right: -6px; border-width: 5px; border-radius: 12px; }
+.s-outro .flags .flag:nth-child(8n+1) { transform: rotate(-8deg); }
+.s-outro .flags .flag:nth-child(8n+2) { transform: rotate(6deg); }
+.s-outro .flags .flag:nth-child(8n+3) { transform: rotate(-3deg); }
+.s-outro .flags .flag:nth-child(8n+4) { transform: rotate(9deg); }
+.s-outro .flags .flag:nth-child(8n+5) { transform: rotate(-6deg); }
+.s-outro .flags .flag:nth-child(8n+6) { transform: rotate(4deg); }
+.s-outro .flags .flag:nth-child(8n+7) { transform: rotate(-10deg); }
+.s-outro .flags .flag:nth-child(8n) { transform: rotate(7deg); }
+.s-outro.many .flags .flag { width: 86px; height: 65px; border-width: 4px; border-radius: 10px; }
+.s-outro h2 { margin-top: 56px; font: 860 92px/1.16 var(--f-body); letter-spacing: -.055em; }
+.s-outro .sub { margin-top: 24px; font-size: 31px; color: var(--ink-2); line-height: 1.5; letter-spacing: -.03em; }
+.s-outro .acts { list-style: none; margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.s-outro .acts li { display: flex; flex-direction: column; align-items: flex-start; padding: 26px 24px 24px; border-radius: 24px; background: var(--card); }
+.s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
+.s-outro .acts svg { width: 28px; height: 28px; }
+.s-outro .acts b { margin-top: 18px; font-size: 28px; font-weight: 850; letter-spacing: -.04em; }
+.s-outro .acts em { margin-top: 2px; font-style: normal; font-size: 20px; color: var(--mute); }
+.s-outro .note { margin-top: 28px; font-size: 19px; color: var(--mute); line-height: 1.6; letter-spacing: -.01em; }
+.s-outro .foot { margin-top: 0; padding-top: 16px; }

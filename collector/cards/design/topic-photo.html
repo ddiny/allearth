@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<title>화제 (사진 있음) · 카드뉴스</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,700..900&family=DM+Mono:wght@500&family=Noto+Sans+KR:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="../cards.css">
+</head>
+<body>
+<!-- 2장~ · 나라별 화제 (1080×1350)
+     .art 의 --cc / --cc2 는 나라 색이에요. 사진이 있으면 .art 에 has-photo 를 더하고 <img class="photo"> 를 넣어요.
+     배지: badge--hot / badge--rising / badge--new / badge--talked -->
+<div class="card s-topic">
+  <div class="top">
+    <div class="who"><img class="flag" src="../flags/kr.svg" alt=""><div><b>한국</b><span class="mono">KOREA · 제주</span></div></div>
+    <span class="count mono">02 / 10</span>
+  </div>
+  <div class="art has-photo" style="--cc:#3340FF;--cc2:#D9DCFF">
+    <!-- 실제 카드에서는 <img class="photo" src="사진 주소" alt=""> 가 들어가요 -->
+    <div class="photo" style="background:linear-gradient(135deg,#F2A65A,#C2547A 50%,#2B2F6B)"></div>
+    <div class="credit mono">Photo Jane Doe / Pexels</div>
+    <div class="badge badge--new">NEW</div>
+    <div class="chip"># 여행</div>
+  </div>
+  <h2><mark>연휴 여행 수요</mark></h2>
+  <p class="short">연휴를 앞두고 기차표와 숙소 검색이 몰리고 있어요.</p>
+  <ul class="why">
+    <li><i class="mono">01</i>연휴가 길어서</li>
+    <li><i class="mono">02</i>표가 빨리 매진돼요</li>
+    <li><i class="mono">03</i>가까운 곳 여행 선호</li>
+  </ul>
+  <div class="foot"><span>출처 Google 트렌드 · Metro Daily, Hanbit Magazine · AI 요약</span><span class="handle">@ath.earth</span></div>
+</div>
+</body>
+</html>

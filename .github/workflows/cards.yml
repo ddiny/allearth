@@ -1,0 +1,55 @@
+name: 매일 카드뉴스 만들기
+on:
+  workflow_run:                # '매일 화제 수집'이 성공하면 바로 이어서 실행해요
+    workflows: ['매일 화제 수집']
+    types: [completed]
+  workflow_dispatch:           # Actions 탭에서 직접 실행할 수도 있어요
+    inputs:
+      count:
+        description: '화제 카드 수 (1~18). 8 이하면 자동 게시 가능, 9 이상은 앱에서 직접 올리기용(최대 20장)'
+        type: string
+        default: '8'
+jobs:
+  cards:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: 브라우저 준비
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0 pretendard@1.3.9
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: 카드 만들기
+        id: cards
+        run: node collector/cards.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          CARDS_COUNT: ${{ inputs.count || '8' }}
+          CARDS_HANDLE: ${{ vars.CARDS_HANDLE }}   # Settings > Variables 에 인스타 계정 이름을 넣으면 카드에 보여요
+      - name: 결과 올리기 (내려받기용)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cards-${{ steps.cards.outputs.date }}
+          path: ${{ steps.cards.outputs.dir }}
+          retention-days: 14
+      - name: Storage에 올리고 미리보기 남기기
+        run: node collector/instagram.mjs upload
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          CARDS_DIR: ${{ steps.cards.outputs.dir }}
+      - name: 인스타 토큰 연장
+        if: ${{ env.HAS_IG == 'true' }}
+        continue-on-error: true      # 토큰 문제로 카드 만들기까지 실패로 보이지 않게
+        run: node collector/instagram.mjs refresh
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+    env:
+      HAS_IG: ${{ secrets.IG_ACCESS_TOKEN != '' }}
