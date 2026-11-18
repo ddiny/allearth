@@ -40,11 +40,37 @@ async function download(url) {
   return `data:${type};base64,${Buffer.from(await r.arrayBuffer()).toString('base64')}`;
 }
 
+/* 제목에서 화제의 종류를 알아내 장면 검색어로 바꿔요.
+   고유명사(나라·팀·작품 이름)로 검색하면 엉뚱한 사진(예: 'Costa Rica' → 새 사진)이 나오기 쉬워서예요.
+   first: 제목 검색보다 먼저 쓸지 (스포츠·드라마·정치는 제목 검색이 특히 잘 틀려요) */
+const SCENES = [
+  { re: /\b(tennis|atp|wta|wimbledon)\b/i, q: 'tennis court', first: true },
+  { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, q: 'race car track', first: true },
+  { re: /\b(marathon|running race)\b/i, q: 'marathon runners', first: true },
+  { re: /\b(nba|basketball)\b/i, q: 'basketball game', first: true },
+  { re: /\b(nfl|super bowl)\b/i, q: 'american football stadium', first: true },
+  { re: /\b(mlb|baseball|kbo|npb)\b/i, q: 'baseball stadium', first: true },
+  { re: /\b(golf|pga)\b/i, q: 'golf course', first: true },
+  { re: /\b(boxing|ufc|mma)\b/i, q: 'boxing ring', first: true },
+  { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals?|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal)\b/i, q: 'soccer stadium', first: true },
+  { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|telenovela|dizi)\b/i, q: 'watching tv', first: true },
+  { re: /\b(movie|film|box office|premiere|cinema)\b/i, q: 'cinema', first: true },
+  { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, q: 'concert stage', first: true },
+  { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, q: 'parliament building', first: true },
+  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|market|rally|plunge|surge|ipo)\b/i, q: 'stock market chart', first: false },
+  { re: /\b(bitcoin|crypto|ethereum)\b/i, q: 'cryptocurrency', first: false },
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, q: 'weather sky', first: false },
+  { re: /\b(earthquake|flood|wildfire|fire)\b/i, q: 'emergency response', first: true }
+];
+const sceneOf = t => SCENES.find(x => x.re.test(String(t || '')));
+
 /* 화제 1개 → { url, credit, link, query } 또는 null */
 export async function findPhoto({ titleEn, category, countryEn, log = () => {} }) {
   if (!hasPhotoSource()) return null;
   const cat = CATEGORY_EN[category] || '';
-  const queries = [titleEn, cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : ''].map(q => String(q || '').trim()).filter(Boolean);
+  const scene = sceneOf(titleEn);
+  const queries = [scene && scene.first ? scene.q : '', titleEn, scene && !scene.first ? scene.q : '', cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
+    .map(q => String(q || '').trim()).filter(Boolean);
   for (const q of [...new Set(queries)]) {
     const need = words(q);
     let hits;
