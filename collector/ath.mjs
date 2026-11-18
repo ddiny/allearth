@@ -51,6 +51,7 @@ export async function loadAth({ max = 9, log = console.log } = {}) {
     return {
       id: x.id, cc: x.cc, order,
       title: x.title, short_desc: x.short_desc || '', category_label: CATEGORY[x.category] || '', when: place,
+      title_en: x.title_en || '', category_key: x.category || '',
       badge: BADGE[x.status] || '',
       image_url: x.image_url || null, image_credit: x.image_url && x.image_credit ? `사진: ${x.image_credit} / Pexels` : '',
       image_alt: '', image_position: '',

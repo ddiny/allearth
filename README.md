@@ -24,6 +24,7 @@ app/assets/topics/topics.js   ← 앱 화면과 인스타 카드의 공통 원�
 | Secrets | `IG_ACCESS_TOKEN` | Meta 개발자 앱에서 받은 토큰 (`EAA…`) |
 | Variables | `IG_USER_ID` | 인스타 계정 번호 (1784…) |
 | Variables (선택) | `CARDS_HANDLE` | 카드 아래 표시할 계정 이름 (예: `@glb.gummi`) |
+| Secrets (선택) | `PEXELS_API_KEY` | 사진이 없는 화제에 Pexels 무료 사진을 찾아 넣어요 (pexels.com/api 에서 무료 발급) |
 
 ### 매일 할 일
 1. Actions → **매일 카드뉴스 만들기** 최근 실행 → 요약 화면의 미리보기 확인
