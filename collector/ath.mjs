@@ -32,8 +32,17 @@ export async function loadAth({ max = 9, log = console.log } = {}) {
   const best = new Map();
   for (const x of [...real].sort((a, b) => (RANK[a.status] ?? 9) - (RANK[b.status] ?? 9) || (b.heat || 0) - (a.heat || 0)))
     if (!best.has(x.cc)) best.set(x.cc, x);
-  /* 화제성 높은 나라부터 max 개 (자동 게시 10장 = 표지 + 9개) */
-  const picked = [...best.values()].sort((a, b) => (b.heat || 0) - (a.heat || 0)).slice(0, max);
+  /* 화제성 높은 나라부터 max 개 (자동 게시 10장 = 표지 + 9개).
+     같은 이야기(같은 키워드·제목)가 여러 나라에 있으면 한 번만 넣어요 — ath 앱도 같은 화제는 하나로 묶어 보여줘요 */
+  const norm = v => String(v || '').replace(/\s+/g, '').toLowerCase();
+  const seen = new Set(), picked = [];
+  for (const x of [...best.values()].sort((a, b) => (b.heat || 0) - (a.heat || 0))) {
+    const k1 = norm(x.keyword_id), k2 = norm(x.title);
+    if ((k1 && seen.has(k1)) || seen.has(k2)) continue;
+    if (k1) seen.add(k1); seen.add(k2);
+    picked.push(x);
+    if (picked.length >= max) break;
+  }
   const date = kstDate(real.map(x => x.published_at).filter(Boolean).sort().pop() || new Date().toISOString());
 
   const rows = picked.map((x, order) => {
