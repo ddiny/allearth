@@ -17,7 +17,7 @@ const CATEGORY_EN = { food: 'food', tech: 'technology', life: 'city life', cultu
   '음악': 'concert', '영화': 'cinema', '스포츠': 'sports', '테니스': 'tennis', '모터스포츠': 'racing', '예술': 'art', '문화': 'festival' };
 const STOP = new Set('the a an of and or in on at to for vs v with from as by is are be its new us uk city'.split(' '));
 const words = s => String(s || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(w => w.length >= 4 && !STOP.has(w));
-const used = new Set();
+const used = new Set(), usedAuthors = new Set();   // 같은 사진·같은 작가(비슷한 연작)를 반복하지 않게
 
 /* 검색 결과를 공통 모양으로: { id, width, text(설명), url, author, link } */
 async function search(query) {
@@ -75,11 +75,12 @@ export async function findPhoto({ titleEn, category, countryEn, log = () => {} }
     const need = words(q);
     let hits;
     try { hits = await search(q); } catch (e) { log(`  ⚠ 사진 검색 실패 (${e.message})`); return null; }
-    const p = hits.find(x => !used.has(x.id) && x.width >= 1000 && (!need.length || need.some(w => String(x.text || '').toLowerCase().includes(w))));
+    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && (!need.length || need.some(w => String(x.text || '').toLowerCase().includes(w))));
+    const p = ok.find(x => !usedAuthors.has(x.author)) || ok[0];
     if (!p) continue;
     try {
       const data = await download(p.url);
-      used.add(p.id);
+      used.add(p.id); usedAuthors.add(p.author);
       return { url: data, credit: `사진: ${String(p.author || photoSource()).slice(0, 40)} / ${photoSource()}`, link: p.link, query: q };
     } catch (e) { log(`  ⚠ ${e.message}`); }
   }
