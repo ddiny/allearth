@@ -9,7 +9,7 @@
 //                (인스타 API는 캐러셀 10장까지. 화제가 9개면 마지막 장 없이 10장)
 //  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US)
 //  CARDS_PHOTOS  0 이면 사진 대신 국기 그래픽 (사진 사용 조건을 확인하기 전 등)
-//  PEXELS_API_KEY 있으면 사진이 없는 화제에 Pexels 무료 사진을 찾아 넣어요 (앱 데이터에 사진이 있으면 그걸 우선)
+//  PIXABAY_API_KEY (또는 PEXELS_API_KEY) 있으면 사진이 없는 화제에 무료 사진을 찾아 넣어요 (앱 데이터에 사진이 있으면 그걸 우선)
 //  CARDS_HANDLE  카드 아래 인스타 계정 이름 (예: @glb.gummi). 비우면 로고
 //  CARDS_OUT     결과 폴더, 기본 out/cards
 //  CARDS_APP_DIR 앱 폴더, 기본 app
@@ -21,7 +21,7 @@ import { chromium } from 'playwright';
 import { W, H, FONT_URL, COUNTRY, coverHtml, topicHtml, outroHtml, sheetHtml, dateParts } from './cards/template.mjs';
 import { loadAllEarth, APP_DIR } from './allearth.mjs';
 import { loadAth } from './ath.mjs';
-import { findPhoto, hasPexels } from './photos.mjs';
+import { findPhoto, hasPhotoSource, photoSource } from './photos.mjs';
 
 const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase() === 'ath' ? 'ath' : 'allearth';
 
@@ -110,13 +110,14 @@ export async function main() {
   const { topics, date } = await pick();
   if (!topics.length) throw new Error('카드로 만들 화제가 없어요 (app/assets/topics/topics.js 확인)');
   /* 사진이 없는 화제는 Pexels 무료 사진으로 채워요 */
-  if (PHOTOS && hasPexels()) {
+  if (PHOTOS && hasPhotoSource()) {
+    log(`사진이 없는 화제에 ${photoSource()} 무료 사진을 찾아요…`);
     for (const t of topics.filter(t => !t.image_url)) {
       const p = await findPhoto({ titleEn: t.title_en, category: t.category_key || t.category_label, countryEn: COUNTRY[t.cc].en.toLowerCase(), log });
       if (p) { t.image_url = p.url; t.image_credit = p.credit; log(`  · ${t.cc} 사진: "${p.query}" → ${p.credit}`); }
       else log(`  · ${t.cc} 어울리는 사진을 못 찾아 국기 그래픽으로 둬요`);
     }
-  } else if (PHOTOS && topics.some(t => !t.image_url)) log('  · 사진이 없는 화제는 국기 그래픽으로 (PEXELS_API_KEY 를 넣으면 무료 사진을 찾아 넣어요)');
+  } else if (PHOTOS && topics.some(t => !t.image_url)) log('  · 사진이 없는 화제는 국기 그래픽으로 (PIXABAY_API_KEY 를 넣으면 무료 사진을 찾아 넣어요)');
   const countries = new Set(topics.map(t => t.cc)).size;
   /* 자동 게시 한도(10장) 안에서 화제를 우선해요: 화제 9개면 마지막 장을 빼고 10장 */
   const withOutro = topics.length + 2 <= MAX_API || topics.length + 1 > MAX_API;

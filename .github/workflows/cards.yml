@@ -50,7 +50,8 @@ jobs:
         run: node collector/cards.mjs
         env:
           CARDS_SOURCE: ${{ inputs.source || 'allearth' }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}   # 있으면 사진 없는 화제에 무료 사진
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}   # 있으면 사진 없는 화제에 무료 사진 (Pixabay)
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           CARDS_PHOTOS: ${{ github.event_name != 'workflow_dispatch' || inputs.photos }}
           CARDS_COUNT: ${{ inputs.count }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}
