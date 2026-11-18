@@ -11,6 +11,11 @@ on:
     paths: ['app/assets/topics/**']
   workflow_dispatch:
     inputs:
+      source:
+        description: '데이터 출처 (allearth = AllEarth 앱 topics.js, ath = 예전 ath 앱 실시간 화제)'
+        type: choice
+        options: [allearth, ath]
+        default: allearth
       photos:
         description: '사진 넣기 (끄면 국기 그래픽)'
         type: boolean
@@ -44,6 +49,7 @@ jobs:
         id: cards
         run: node collector/cards.mjs
         env:
+          CARDS_SOURCE: ${{ inputs.source || 'allearth' }}
           CARDS_PHOTOS: ${{ github.event_name != 'workflow_dispatch' || inputs.photos }}
           CARDS_COUNT: ${{ inputs.count }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}

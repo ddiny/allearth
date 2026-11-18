@@ -89,7 +89,7 @@ export function dateParts(iso) {
 }
 
 /* ---------- 1장: 표지 ---------- */
-export function coverHtml({ date, topics, countryCount, total, handle }) {
+export function coverHtml({ date, topics, countryCount, total, handle, footText = '' }) {
   const dp = dateParts(date), compact = topics.length > 9;
   const tiles = topics.map((t, i) => {
     const co = COUNTRY[t.cc];
@@ -100,7 +100,7 @@ export function coverHtml({ date, topics, countryCount, total, handle }) {
   <div class="pill">AllEarth 지구 근황</div>
   <h1>${countryCount}개국에서 지금<br><mark>일어나는 이야기</mark></h1>
   <ul class="list">${tiles}</ul>
-  <div class="foot"><span>AllEarth가 고른 이야기 · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
+  <div class="foot"><span>${esc(footText || 'AllEarth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
 

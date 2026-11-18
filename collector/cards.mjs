@@ -4,6 +4,7 @@
 //  3) 캡션(일정·출처·이미지 출처)과 미리보기도 같이 만들어요
 //
 // 환경 변수
+//  CARDS_SOURCE  allearth(기본) = AllEarth 앱 topics.js · ath = 예전 ath 앱의 실시간 화제(Supabase, topics.js 변환 전까지)
 //  CARDS_COUNT   화제 카드 수 (기본: 전부, 최대 18). 표지 포함 10장을 넘으면 앱에서 직접 올리기용
 //                (인스타 API는 캐러셀 10장까지. 화제가 9개면 마지막 장 없이 10장)
 //  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US)
@@ -18,6 +19,9 @@ import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { W, H, FONT_URL, COUNTRY, coverHtml, topicHtml, outroHtml, sheetHtml, dateParts } from './cards/template.mjs';
 import { loadAllEarth, APP_DIR } from './allearth.mjs';
+import { loadAth } from './ath.mjs';
+
+const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase() === 'ath' ? 'ath' : 'allearth';
 
 const MAX_API = 10;   // 인스타 API 캐러셀 한도
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
@@ -37,9 +41,9 @@ function loadFont() {
 }
 
 /* ---------- 1. 앱 화제 읽기 ---------- */
-function pick() {
-  const { rows, date, dateLabel } = loadAllEarth();
-  log(`AllEarth 앱 화제를 읽어요 (topics.js · ${dateLabel} · ${rows.length}개)`);
+async function pick() {
+  const { rows, date, dateLabel } = SOURCE === 'ath' ? await loadAth({ max: Math.min(COUNT, 9), log }) : loadAllEarth();
+  if (SOURCE !== 'ath') log(`AllEarth 앱 화제를 읽어요 (topics.js · ${dateLabel} · ${rows.length}개)`);
   const topics = rows
     .filter(r => COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title)
     .sort((a, b) => a.order - b.order)
@@ -87,6 +91,7 @@ function caption({ date, topics, countries }) {
     `${dp.ko}, AllEarth 지구 근황`,
     '',
     `${countries}개국에서 지금 일어나는 이야기를 모았어요.`,
+    ...(SOURCE === 'ath' ? ['나라별 구글 트렌드 급상승 검색어와 관련 뉴스를 AI로 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.'] : []),
     '',
     ...topics.map(t => `${COUNTRY[t.cc].ko} | ${t.title}${t.when ? ` (${t.when})` : ''}`),
     '',
@@ -100,7 +105,7 @@ function caption({ date, topics, countries }) {
 
 /* ---------- 실행 ---------- */
 export async function main() {
-  const { topics, date } = pick();
+  const { topics, date } = await pick();
   if (!topics.length) throw new Error('카드로 만들 화제가 없어요 (app/assets/topics/topics.js 확인)');
   const countries = new Set(topics.map(t => t.cc)).size;
   /* 자동 게시 한도(10장) 안에서 화제를 우선해요: 화제 9개면 마지막 장을 빼고 10장 */
@@ -117,7 +122,7 @@ export async function main() {
   const files = [], warn = [];
   try {
     const slides = [
-      { name: '01-cover.jpg', html: coverHtml({ date, topics, countryCount: countries, total, handle: HANDLE }) },
+      { name: '01-cover.jpg', html: coverHtml({ date, topics, countryCount: countries, total, handle: HANDLE, footText: SOURCE === 'ath' ? '구글 트렌드 기반 · AI 요약' : '' }) },
       ...topics.map((t, i) => ({ name: `${String(i + 2).padStart(2, '0')}-${t.cc.toLowerCase()}.jpg`, html: topicHtml(t, { index: i + 2, total, handle: HANDLE }), t })),
       ...(withOutro ? [{ name: `${String(total).padStart(2, '0')}-outro.jpg`, html: outroHtml({ topics, total, handle: HANDLE }) }] : [])
     ];
@@ -139,10 +144,10 @@ export async function main() {
 
   /* 앱 화제 날짜가 지났으면 알려줘요 (요약에 '오늘'·'내일' 같은 말이 있어 늦게 올리면 틀린 말이 돼요) */
   const age = Math.round((Date.parse(kstDate(new Date().toISOString())) - Date.parse(date)) / 864e5);
-  if (age >= 1) { warn.unshift(`앱 화제 날짜가 ${date}로 ${age}일 지났어요. 요약의 '오늘'·'내일' 같은 표현이 지금과 맞지 않을 수 있어요. topics.js 를 새로 고친 뒤 올리는 걸 추천해요.`); log(`  ⚠ 화제 날짜 ${date} · ${age}일 지남`); }
+  if (age >= 1 && SOURCE !== 'ath') { warn.unshift(`앱 화제 날짜가 ${date}로 ${age}일 지났어요. 요약의 '오늘'·'내일' 같은 표현이 지금과 맞지 않을 수 있어요. topics.js 를 새로 고친 뒤 올리는 걸 추천해요.`); log(`  ⚠ 화제 날짜 ${date} · ${age}일 지남`); }
   if (total > MAX_API) warn.push(`카드가 ${total}장이라 자동 게시는 안 돼요 (API 한도 10장). Artifacts에서 내려받아 앱으로 올려주세요.`);
 
-  const summary = `## 카드뉴스 (${date} · AllEarth 앱 화제)\n${countries}개국 ${topics.length}개 화제, 카드 ${total}장\n\n` +
+  const summary = `## 카드뉴스 (${date} · ${SOURCE === 'ath' ? 'ath 앱 실시간 화제' : 'AllEarth 앱 화제'})\n${countries}개국 ${topics.length}개 화제, 카드 ${total}장\n\n` +
     topics.map((t, i) => `${i + 2}. **${COUNTRY[t.cc].ko}** ${t.title}`).join('\n') +
     (warn.length ? `\n\n확인 필요:\n${warn.map(w => '- ' + w).join('\n')}` : '') + '\n';
   log('\n' + cap);
