@@ -41,6 +41,34 @@ app/assets/topics/topics.js   ← 앱 화면과 인스타 카드의 공통 원�
 - 같은 날짜는 두 번 올라가지 않아요 (`다시 올리기`를 체크해야만 돼요).
 - 로또·복권·로그인 같은 도구성 검색어는 자동으로 빼요. 사건·사고 같은 민감한 검색어는 걸러지지 않으니 미리보기에서 꼭 확인하세요.
 
+## topics.js 데이터 약속 (카드가 읽는 칸)
+카드는 `app/assets/topics/topics.js`의 `window.AllEarthTopics`를 앱과 같은 방식으로 읽어요. 글은 바꾸지 않고 그대로 써요.
+
+```js
+window.AllEarthTopics = {
+  date: '2026-11-18',          // 카드 날짜. 같은 날짜는 인스타에 한 번만 올라가요 (없으면 오늘)
+  dateLabel: '2026.11.18',
+  topics: {
+    kr: {                      // 나라 코드: kr, jp, us, gb(또는 uk) … 대소문자 상관없음
+      title: '제목',            // 필수
+      summary: '한두 문장 요약',
+      category: '테크',         // 사진 위 '# 테크'
+      when: '11.18',           // 제목 아래 일정
+      image: 'assets/topics/2026-11-18/kr.jpg',   // 앱 안 파일 또는 https:// 주소 둘 다 돼요
+      imageAlt: '사진 설명', imagePosition: '50% 40%',
+      imageCredit: '사진: 작가 / 출처',            // 사진 아래와 캡션에 그대로 들어가요
+      source: 'https://…', sourceName: '출처 이름',
+      status: 'rising'         // 또는 badges: ['Hot'] — hot, rising, new(=TODAY), talked(=ONGOING). 없으면 TODAY
+    }
+  }
+};
+```
+
+- 나라당 화제가 여러 개면 `kr: [ {...}, {...} ]`처럼 배열로 둬도 돼요. 카드는 **첫 번째(대표) 화제**를 써요.
+- 사진 주소가 깨져 있으면 그 장은 국기 그래픽으로 나오고 사진 출처도 빠져요.
+- 카드에 들어가는 나라는 `collector/cards/template.mjs`의 `COUNTRY` 목록에 있는 나라예요 (예전 앱 19개국 + 중국). 새 나라는 거기에 이름·색·국기 파일을 추가해요.
+- 화제가 9개 이하면 자동 게시(10장 이하)가 돼요. 10개 이상이면 '매일 카드뉴스 만들기'를 `count` 9로 실행하거나, 내려받아 앱에서 직접 올려요.
+
 ## 카드 디자인 고치기
 카드는 순수 HTML/CSS (1080 × 1350, 인스타 4:5)이고 AllEarth 디자인 가이드를 따라요.
 

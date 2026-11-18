@@ -116,7 +116,7 @@ export function topicHtml(t, { index, total, handle }) {
     <span class="count mono">${pad(index)} / ${pad(total)}</span>
   </div>
   <div class="art${img ? ' has-photo' : ''}" style="--cc:${co.c[0]};--cc2:${co.c[1]}">${poster(hash(t.title) % 8, t.cc, t.title)}<img class="big-flag sticker" src="${flagSrc(t.cc)}" alt="">${img}
-    <div class="badge badge--new">TODAY</div>
+    <div class="badge badge--${/HOT/.test(t.badge || '') ? 'hot' : 'new'}"${(t.badge || '').length > 6 ? ' style="font-size:24px"' : ''}>${esc(t.badge || 'TODAY')}</div>
     ${t.category_label ? `<div class="chip"># ${esc(t.category_label)}</div>` : ''}
   </div>
   ${credit}
