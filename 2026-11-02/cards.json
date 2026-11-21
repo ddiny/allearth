@@ -1,0 +1,72 @@
+{
+ "date": "2026-11-02",
+ "countries": 9,
+ "slides": [
+  "01-cover.jpg",
+  "02-kr.jpg",
+  "03-jp.jpg",
+  "04-tw.jpg",
+  "05-th.jpg",
+  "06-vn.jpg",
+  "07-us.jpg",
+  "08-fr.jpg",
+  "09-br.jpg",
+  "10-au.jpg"
+ ],
+ "topics": [
+  {
+   "cc": "KR",
+   "title": "TWS, 오늘 「TO US」 발매",
+   "source": "https://tws-official.jp/news/adaf3aa08349?CateID=&SearchWord=",
+   "photo": "이미지: TWS / PLEDIS · 2026 투어 공식 자료 사진, 신보 콘셉트 사진 아님"
+  },
+  {
+   "cc": "JP",
+   "title": "영화로 물든 도쿄의 가을",
+   "source": "https://2026.tiff-jp.net/en/",
+   "photo": "이미지: 제39회 도쿄국제영화제 · 2026.10.30 행사 사진"
+  },
+  {
+   "cc": "TW",
+   "title": "타이베이를 채운 무지갯빛 행진",
+   "source": "https://www.taiwanpride.lgbt/about",
+   "photo": "이미지: Taiwan LGBT+ Pride · 공식 사이트 자료 사진, 올해 현장 사진 아님"
+  },
+  {
+   "cc": "TH",
+   "title": "방콕이 거대한 미술관으로",
+   "source": "https://www.bacc.or.th/en/events/96329",
+   "photo": "이미지: 태국관광청 보도자료 / Bangkok Art Biennale · 공식 포스터"
+  },
+  {
+   "cc": "VN",
+   "title": "하노이, 도시의 유산을 달리다",
+   "source": "https://hanoi-marathon.com/",
+   "photo": "이미지: 대회 공식 사이트 · 2025년 자료 사진"
+  },
+  {
+   "cc": "US",
+   "title": "뉴욕의 다섯 자치구를 달리다",
+   "source": "https://espnpressroom.com/press-release/espn-and-abc7-wabc-tv-announce-2026-tcs-new-york-city-marathon-broadcast-schedule-for-november-1-race/",
+   "photo": "사진: Marc A. Hermann / MTA · 2021년 자료 사진"
+  },
+  {
+   "cc": "FR",
+   "title": "파리 마스터스, 본선 시작",
+   "source": "https://www.rolexparismasters.com/en/news/article/2026-edition-complete-schedule-qualifying-main-draw-singles-doubles-wheelchair-tennis",
+   "photo": "사진: Julien Crosnier / FFT · 2025년 자료 사진"
+  },
+  {
+   "cc": "BR",
+   "title": "상파울루, F1을 기다리는 일주일",
+   "source": "https://www.formula1.com/en/racing/2026/brazil",
+   "photo": "이미지: Formula 1 · 공식 레이스 소개용 자료 사진"
+  },
+  {
+   "cc": "AU",
+   "title": "멜버른 컵, 내일의 축제",
+   "source": "https://vrc-prod-cdn-cxdkhbhwgvh3e0g5.z01.azurefd.net/melbourne-cup-carnival/melbourne-cup-carnival-2026/",
+   "photo": "사진: Lucas Dawson / VRC · 2025년 자료 사진"
+  }
+ ]
+}
