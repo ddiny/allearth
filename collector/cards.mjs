@@ -10,6 +10,7 @@
 //  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US)
 //  CARDS_PHOTOS  0 이면 사진 대신 국기 그래픽 (사진 사용 조건을 확인하기 전 등)
 //  PIXABAY_API_KEY (또는 PEXELS_API_KEY) 있으면 사진이 없는 화제에 무료 사진을 찾아 넣어요 (앱 데이터에 사진이 있으면 그걸 우선)
+//  CARDS_HASHTAGS 캡션 해시태그 (공백으로 구분, 최대 5개)
 //  CARDS_HANDLE  카드 아래 인스타 계정 이름 (예: @glb.gummi). 비우면 로고
 //  CARDS_OUT     결과 폴더, 기본 out/cards
 //  CARDS_APP_DIR 앱 폴더, 기본 app
@@ -26,6 +27,9 @@ import { findPhoto, hasPhotoSource, photoSource } from './photos.mjs';
 const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase() === 'ath' ? 'ath' : 'allearth';
 
 const MAX_API = 10;   // 인스타 API 캐러셀 한도
+/* 해시태그: 인스타가 게시물당 5개로 줄였다는 보도가 있어 5개까지만. 저장소 변수 CARDS_HASHTAGS 로 바꿀 수 있어요 */
+const HASHTAGS = (process.env.CARDS_HASHTAGS || '#AllEarth #지구근황 #해외이슈 #세계뉴스 #오늘의이슈')
+  .split(/[\s,]+/).filter(Boolean).map(t => t.startsWith('#') ? t : '#' + t).slice(0, 5).join(' ');
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));
 const PHOTOS = !/^(0|false|no|off)$/i.test(process.env.CARDS_PHOTOS || '');
@@ -101,7 +105,7 @@ function caption({ date, topics, countries }) {
     ...topics.filter(t => t.source_name).map(t => `${COUNTRY[t.cc].ko}: ${t.source_name}`),
     ...(credits.length ? ['', '이미지', ...credits.map(t => `${COUNTRY[t.cc].ko}: ${t.image_credit.replace(/^(이미지|사진):\s*/, '')}`)] : []),
     '',
-    '#AllEarth #올어스 #지구근황 #세계여행 #해외이슈 #' + topics.map(t => COUNTRY[t.cc].ko).slice(0, 3).join(' #')
+    HASHTAGS
   ].join('\n');
 }
 
