@@ -44,31 +44,34 @@ async function download(url) {
    고유명사(나라·팀·작품 이름)로 검색하면 엉뚱한 사진(예: 'Costa Rica' → 새 사진)이 나오기 쉬워서예요.
    first: 제목 검색보다 먼저 쓸지 (스포츠·드라마·정치는 제목 검색이 특히 잘 틀려요) */
 const SCENES = [
-  { re: /\b(tennis|atp|wta|wimbledon)\b/i, q: 'tennis court', first: true },
-  { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, q: 'race car track', first: true },
-  { re: /\b(marathon|running race)\b/i, q: 'marathon runners', first: true },
-  { re: /\b(nba|basketball)\b/i, q: 'basketball game', first: true },
-  { re: /\b(nfl|super bowl)\b/i, q: 'american football stadium', first: true },
-  { re: /\b(mlb|baseball|kbo|npb)\b/i, q: 'baseball stadium', first: true },
-  { re: /\b(golf|pga)\b/i, q: 'golf course', first: true },
-  { re: /\b(boxing|ufc|mma)\b/i, q: 'boxing ring', first: true },
-  { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals?|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal)\b/i, q: 'soccer stadium', first: true },
-  { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|telenovela|dizi)\b/i, q: 'watching tv', first: true },
-  { re: /\b(movie|film|box office|premiere|cinema)\b/i, q: 'cinema', first: true },
-  { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, q: 'concert stage', first: true },
-  { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, q: 'parliament building', first: true },
-  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|market|rally|plunge|surge|ipo)\b/i, q: 'stock market chart', first: false },
-  { re: /\b(bitcoin|crypto|ethereum)\b/i, q: 'cryptocurrency', first: false },
-  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, q: 'weather sky', first: false },
-  { re: /\b(earthquake|flood|wildfire|fire)\b/i, q: 'emergency response', first: true }
+  // re: 영어 제목 · ko: 한국어 제목·요약 (앱 데이터의 한국어 문장이 화제 종류를 더 잘 알려줘요). 위에서부터 먼저 맞는 것을 써요
+  { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: 'tennis court', first: true },
+  { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
+  { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
+  { re: /\b(nba|basketball|76ers|lakers|celtics|warriors|bucks|knicks)\b/i, ko: /농구|NBA|KBL|덩크/, q: 'basketball game', first: true },
+  { re: /\b(nfl|super bowl)\b/i, ko: /미식축구|NFL|슈퍼볼/, q: 'american football stadium', first: true },
+  { re: /\b(mlb|baseball|kbo|npb|baystars|giants|tigers|dodgers|yankees)\b/i, ko: /야구|MLB|KBO|NPB|홈런|투수|타자|베이스타즈|자이언츠|타이거즈/, q: 'baseball stadium', first: true },
+  { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
+  { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
+  { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals?|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|champions)\b/i,
+    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼/, q: 'soccer stadium', first: true },
+  { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|telenovela|dizi|game show|reality show)\b/i, ko: /드라마|예능|게임쇼|시즌 종영|종영|방송|시청률|리얼리티/, q: 'watching tv', first: true },
+  { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /게임|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: 'video game controller', first: true },
+  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회/, q: 'cinema', first: true },
+  { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: 'concert stage', first: true },
+  { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, ko: /선거|투표|대통령|총리|장관|의회|국회|정부|정당/, q: 'parliament building', first: true },
+  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|market|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: 'stock market chart', first: false },
+  { re: /\b(bitcoin|crypto|ethereum)\b/i, ko: /비트코인|가상화폐|암호화폐/, q: 'cryptocurrency', first: false },
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|날씨|기상/, q: 'weather sky', first: false },
+  { re: /\b(earthquake|flood|wildfire|fire)\b/i, ko: /지진|홍수|산불|화재/, q: 'emergency response', first: true }
 ];
-const sceneOf = t => SCENES.find(x => x.re.test(String(t || '')));
+const sceneOf = (en, ko) => SCENES.find(x => x.re.test(String(en || '')) || (x.ko && x.ko.test(String(ko || ''))));
 
 /* 화제 1개 → { url, credit, link, query } 또는 null */
-export async function findPhoto({ titleEn, category, countryEn, log = () => {} }) {
+export async function findPhoto({ titleEn, textKo = '', category, countryEn, log = () => {} }) {
   if (!hasPhotoSource()) return null;
   const cat = CATEGORY_EN[category] || '';
-  const scene = sceneOf(titleEn);
+  const scene = sceneOf(titleEn, textKo);
   const queries = [scene && scene.first ? scene.q : '', titleEn, scene && !scene.first ? scene.q : '', cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
     .map(q => String(q || '').trim()).filter(Boolean);
   for (const q of [...new Set(queries)]) {

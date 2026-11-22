@@ -113,7 +113,7 @@ export async function main() {
   if (PHOTOS && hasPhotoSource()) {
     log(`사진이 없는 화제에 ${photoSource()} 무료 사진을 찾아요…`);
     for (const t of topics.filter(t => !t.image_url)) {
-      const p = await findPhoto({ titleEn: t.title_en, category: t.category_key || t.category_label, countryEn: COUNTRY[t.cc].en.toLowerCase(), log });
+      const p = await findPhoto({ titleEn: t.title_en, textKo: `${t.title} ${t.short_desc}`, category: t.category_key || t.category_label, countryEn: COUNTRY[t.cc].en.toLowerCase(), log });
       if (p) { t.image_url = p.url; t.image_credit = p.credit; log(`  · ${t.cc} 사진: "${p.query}" → ${p.credit}`); }
       else log(`  · ${t.cc} 어울리는 사진을 못 찾아 국기 그래픽으로 둬요`);
     }
