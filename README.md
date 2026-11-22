@@ -42,6 +42,11 @@ app/assets/topics/topics.js   ← 앱 화면과 인스타 카드의 공통 원�
 - 같은 날짜는 두 번 올라가지 않아요 (`다시 올리기`를 체크해야만 돼요).
 - 로또·복권·로그인 같은 도구성 검색어는 자동으로 빼요. 사건·사고 같은 민감한 검색어는 걸러지지 않으니 미리보기에서 꼭 확인하세요.
 
+## 매일 자동 생성
+- 매일 아침 7:13(KST)에 **ath 앱의 실시간 화제**로 카드 10장을 자동으로 만들어요. 게시는 지금처럼 '인스타에 올리기'를 실행할 때만 돼요.
+- `topics.js` 변환이 끝나면 저장소 Settings → Variables 에 `CARDS_DEFAULT_SOURCE` = `allearth` 를 넣어요. 코드 수정 없이 매일 아침 출처가 AllEarth 앱으로 바뀌어요.
+- `app/assets/topics/topics.js` 가 바뀌어 올라오면 그 즉시 AllEarth 기준 카드도 만들어요.
+
 ## topics.js 데이터 약속 (카드가 읽는 칸)
 카드는 `app/assets/topics/topics.js`의 `window.AllEarthTopics`를 앱과 같은 방식으로 읽어요. 글은 바꾸지 않고 그대로 써요.
 
