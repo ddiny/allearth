@@ -103,10 +103,10 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
   }).join('');
   return page(`<div class="card s-cover${compact ? ' compact' : ''}${topics.length === 9 ? ' nine' : ''}">
   <div class="top">${LOGO}<span class="mono date">${dp.dot} ${dp.dow}</span></div>
-  <div class="pill">AllEarth 지구 근황</div>
+  <div class="pill">allearth 지구 근황</div>
   <h1>${countryCount}개국에서 지금<br><mark>일어나는 이야기</mark></h1>
   <ul class="list">${tiles}</ul>
-  <div class="foot"><span>${esc(footText || 'AllEarth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
+  <div class="foot"><span>${esc(footText || 'allearth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
 

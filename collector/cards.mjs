@@ -94,7 +94,7 @@ function caption({ date, topics, countries }) {
   const dp = dateParts(date);
   const credits = topics.filter(t => t.photoShown && t.image_credit);
   return [
-    `${dp.ko}, AllEarth 지구 근황`,
+    `${dp.ko}, allearth 지구 근황`,
     '',
     `${countries}개국에서 지금 일어나는 이야기를 모았어요.`,
     ...(SOURCE === 'ath' ? ['나라별 구글 트렌드 급상승 검색어와 관련 뉴스를 AI로 요약했어요. 정확한 내용은 원문 기사로 확인해 주세요.'] : []),
