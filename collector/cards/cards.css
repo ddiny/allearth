@@ -173,3 +173,21 @@ mark {
 .s-topic .when { flex: none; margin-top: 14px; font-size: 22px; color: var(--mute); letter-spacing: .04em; }
 .s-topic.editorial .short { font-size: 33px; line-height: 1.55; }
 .s-topic.editorial .art { min-height: 420px; }
+
+/* =====================================================================
+   AllEarth 로고 (피그마 Logo: Vertical / Horizontal)
+   세로형 비율은 앱의 .brand-lockup 과 같아요: 심볼 44 · 간격 12 · 워드마크 Poppins Bold 28 → 1.2배
+   ===================================================================== */
+.lockup { display: inline-flex; flex-direction: column; align-items: center; gap: 14px; color: var(--ink); }
+.lockup svg { width: 53px; height: 53px; display: block; }
+.lockup .wordmark { font: 700 34px/1 var(--f-display); letter-spacing: 0; color: var(--ink); }
+.logo-h { display: inline-flex; align-items: center; height: 30px; color: var(--ink); }
+.logo-h svg { height: 100%; width: auto; display: block; }
+.brand-foot { display: inline-flex; align-items: center; gap: 14px; flex: none; }
+.brand-foot .handle { color: var(--mute); }
+.s-cover .top { align-items: flex-start; }
+.s-cover .pill { margin-top: 40px; }
+.s-cover.nine h1 { font-size: 90px; }
+.s-outro .top { align-items: flex-start; }
+.s-outro .flags { margin-top: 48px; }
+.s-outro h2 .brand-mark { font-family: var(--f-display); font-weight: 700; letter-spacing: -.01em; }

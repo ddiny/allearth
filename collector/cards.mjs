@@ -28,7 +28,7 @@ const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase() === 'ath' 
 
 const MAX_API = 10;   // 인스타 API 캐러셀 한도
 /* 해시태그: 인스타가 게시물당 5개로 줄였다는 보도가 있어 5개까지만. 저장소 변수 CARDS_HASHTAGS 로 바꿀 수 있어요 */
-const HASHTAGS = (process.env.CARDS_HASHTAGS || '#AllEarth #지구근황 #해외이슈 #세계뉴스 #오늘의이슈')
+const HASHTAGS = (process.env.CARDS_HASHTAGS || '#allearth #지구근황 #해외이슈 #세계뉴스 #오늘의이슈')
   .split(/[\s,]+/).filter(Boolean).map(t => t.startsWith('#') ? t : '#' + t).slice(0, 5).join(' ');
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));

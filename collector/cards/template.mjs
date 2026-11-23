@@ -65,7 +65,12 @@ const brandSvg = name => readFileSync(new URL(`./brand/${name}.svg`, import.meta
   .replace(/<svg[^>]*viewBox="([^"]+)"[^>]*>/, '<svg viewBox="$1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">')
   .replace(/fill="#23262C"/gi, 'fill="currentColor"');
 /* 앱 홈 화면처럼 심볼 로고를 써요 (brand-horizontal 은 '⊕rth' 짧은 조합이라 단독으로 쓰면 이름이 잘 안 읽혀요) */
-const LOGO = `<span class="logo" aria-label="AllEarth">${brandSvg('brand-symbol')}</span>`;
+/* AllEarth 로고 (피그마 Logo 컴포넌트와 같은 구성)
+   세로형: 심볼 + 'allearth' 워드마크. 앱(app/index.html .brand-lockup)처럼 워드마크는 Poppins Bold 로 써요
+   가로형: brand-horizontal.svg ('⊕rth') 그대로 */
+const LOGO_V = `<span class="lockup" role="img" aria-label="AllEarth">${brandSvg('brand-symbol')}<span class="wordmark">allearth</span></span>`;
+const LOGO_H = `<span class="logo-h" role="img" aria-label="AllEarth">${brandSvg('brand-horizontal')}</span>`;
+const LOGO = LOGO_V;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON = {
   save: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
@@ -80,7 +85,8 @@ const FONT_FACE = `@font-face { font-family:'Pretendard'; src:url('${FONT_URL}')
 @font-face { font-family:'Poppins'; src:url(data:font/ttf;base64,${font64('Poppins-Regular.ttf')}) format('truetype'); font-weight:400; }
 @font-face { font-family:'Poppins'; src:url(data:font/ttf;base64,${font64('Poppins-Bold.ttf')}) format('truetype'); font-weight:700; }`;
 const page = body => `<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>${FONT_FACE}\n${CSS}</style></head><body>${body}</body></html>`;
-const handleHtml = handle => handle ? `<span class="handle">${esc(handle)}</span>` : LOGO.replace('class="logo"', 'class="logo logo--sm"');
+/* 화제 카드 아래: 가로형 로고 + 계정 이름 */
+const handleHtml = handle => `<span class="brand-foot">${LOGO_H}${handle ? `<span class="handle">${esc(handle)}</span>` : ''}</span>`;
 
 /* 날짜 표기: '2026-11-06' -> { dot:'2026.11.06', ko:'11월 6일', dow:'FRI' } */
 export function dateParts(iso) {
@@ -136,7 +142,7 @@ export function outroHtml({ topics, total, handle }) {
   return page(`<div class="card s-outro${many ? ' many' : ''}">
   <div class="top">${LOGO}<span class="count mono">${pad(total)} / ${pad(total)}</span></div>
   <div class="flags">${flags}</div>
-  <h2>더 많은 나라 이야기는<br><mark>AllEarth</mark>에서 만나요</h2>
+  <h2>더 많은 나라 이야기는<br><mark class="brand-mark">allearth</mark>에서 만나요</h2>
   <p class="sub">지구본을 돌려 나라별 이야기를 둘러보세요.</p>
   <ul class="acts">${acts}</ul>
   <p class="note">이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.</p>

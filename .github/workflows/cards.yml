@@ -57,7 +57,7 @@ jobs:
           CARDS_COUNT: ${{ inputs.count }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}
           CARDS_HANDLE: ${{ vars.CARDS_HANDLE }}
-          CARDS_HASHTAGS: ${{ vars.CARDS_HASHTAGS }}   # 비우면 #AllEarth #지구근황 #해외이슈 #세계뉴스 #오늘의이슈
+          CARDS_HASHTAGS: ${{ vars.CARDS_HASHTAGS }}   # 비우면 #allearth #지구근황 #해외이슈 #세계뉴스 #오늘의이슈
       - name: 내려받기용으로 보관
         uses: actions/upload-artifact@v4
         with:
