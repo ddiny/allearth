@@ -185,9 +185,4 @@ mark {
 .logo-h svg { height: 100%; width: auto; display: block; }
 .brand-foot { display: inline-flex; align-items: center; gap: 14px; flex: none; }
 .brand-foot .handle { color: var(--mute); }
-.s-cover .top { align-items: flex-start; }
-.s-cover .pill { margin-top: 40px; }
-.s-cover.nine h1 { font-size: 90px; }
-.s-outro .top { align-items: flex-start; }
-.s-outro .flags { margin-top: 48px; }
 .s-outro h2 .brand-mark { font-family: var(--f-display); font-weight: 700; letter-spacing: -.01em; }

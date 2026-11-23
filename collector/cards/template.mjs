@@ -66,11 +66,11 @@ const brandSvg = name => readFileSync(new URL(`./brand/${name}.svg`, import.meta
   .replace(/fill="#23262C"/gi, 'fill="currentColor"');
 /* 앱 홈 화면처럼 심볼 로고를 써요 (brand-horizontal 은 '⊕rth' 짧은 조합이라 단독으로 쓰면 이름이 잘 안 읽혀요) */
 /* AllEarth 로고 (피그마 Logo 컴포넌트와 같은 구성)
-   세로형: 심볼 + 'allearth' 워드마크. 앱(app/index.html .brand-lockup)처럼 워드마크는 Poppins Bold 로 써요
+   심볼: 표지·마지막 장 위쪽 (앱 홈 화면처럼)
    가로형: brand-horizontal.svg ('⊕rth') 그대로 */
-const LOGO_V = `<span class="lockup" role="img" aria-label="AllEarth">${brandSvg('brand-symbol')}<span class="wordmark">allearth</span></span>`;
 const LOGO_H = `<span class="logo-h" role="img" aria-label="AllEarth">${brandSvg('brand-horizontal')}</span>`;
-const LOGO = LOGO_V;
+/* 표지·마지막 장 위쪽: 심볼만 (앱 홈 화면처럼) */
+const LOGO = `<span class="logo" aria-label="AllEarth">${brandSvg('brand-symbol')}</span>`;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON = {
   save: '<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
