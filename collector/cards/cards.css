@@ -186,3 +186,6 @@ mark {
 .brand-foot { display: inline-flex; align-items: center; gap: 14px; flex: none; }
 .brand-foot .handle { color: var(--mute); }
 .s-outro h2 .brand-mark { font-family: var(--f-display); font-weight: 700; letter-spacing: -.01em; }
+/* 마지막 장 문구 안의 로고: 심볼 + allearth (글자 높이에 맞춰요) */
+.s-outro h2 .inline-logo { display: inline-flex; align-items: center; gap: .14em; vertical-align: baseline; }
+.s-outro h2 .inline-logo svg { width: .8em; height: .8em; flex: none; color: var(--ink); position: relative; top: .04em; }
