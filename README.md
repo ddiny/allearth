@@ -24,7 +24,7 @@ app/assets/topics/topics.js   ← 앱 화면과 인스타 카드의 공통 원�
 | Secrets | `IG_ACCESS_TOKEN` | Meta 개발자 앱에서 받은 토큰 (`EAA…`) |
 | Variables | `IG_USER_ID` | 인스타 계정 번호 (1784…) |
 | Variables (선택) | `CARDS_HANDLE` | 카드 아래 표시할 계정 이름 (예: `@glb.gummi`) |
-| Variables (선택) | `CARDS_HASHTAGS` | 캡션 해시태그 (공백으로 구분, 최대 5개). 비우면 `#allearth #지구근황 #해외이슈 #세계뉴스 #오늘의이슈` |
+| Variables (선택) | `CARDS_HASHTAGS` | 고정 해시태그 (공백으로 구분). 비우면 `#allearth #지구근황`, 남는 자리(총 5개)는 그날 화제 키워드로 채워요 |
 | Secrets (선택) | `PIXABAY_API_KEY` | 사진이 없는 화제에 Pixabay 무료 사진을 찾아 넣어요 (pixabay.com 가입 후 pixabay.com/api/docs 에서 키 확인) |
 
 ### 매일 할 일

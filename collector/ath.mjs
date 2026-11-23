@@ -24,6 +24,12 @@ export async function loadAth({ max = 9, log = console.log } = {}) {
   } catch (e) { throw new Error(`ath 앱 데이터 서버에 접속하지 못했어요 (${(e.cause && e.cause.code) || e.message})`); }
   if (!r.ok) throw new Error(`ath 앱 데이터를 읽지 못했어요 (Supabase ${r.status})`);
   const all = await r.json();
+  /* 화제 키워드(앱이 화제를 묶을 때 쓰는 한국어 2~8자). 해시태그에 써요. 못 읽어도 카드는 계속 */
+  let kw = {};
+  try {
+    const k = await fetch(`${URL_}/rest/v1/keywords?select=id,title`, { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+    if (k.ok) kw = Object.fromEntries((await k.json()).map(x => [x.id, x.title]));
+  } catch { /* 키워드 없이 진행 */ }
   const real = all.filter(x => !x.is_sample && x.title);
   log(`ath 앱 실시간 화제를 읽어요 (전체 ${all.length}개, 실제 ${real.length}개)`);
   if (!real.length) throw new Error('ath 앱에 실제 화제가 없어요 (예시 데이터만 있어요)');
@@ -51,7 +57,7 @@ export async function loadAth({ max = 9, log = console.log } = {}) {
     return {
       id: x.id, cc: x.cc, order,
       title: x.title, short_desc: x.short_desc || '', category_label: CATEGORY[x.category] || '', when: place,
-      title_en: x.title_en || '', category_key: x.category || '',
+      title_en: x.title_en || '', category_key: x.category || '', keyword: kw[x.keyword_id] || '',
       badge: BADGE[x.status] || '',
       image_url: x.image_url || null, image_credit: x.image_url && x.image_credit ? `사진: ${x.image_credit} / Pexels` : '',
       image_alt: '', image_position: '',
