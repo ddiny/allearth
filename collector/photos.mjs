@@ -34,7 +34,12 @@ async function search(query) {
 
 /* 사진을 내려받아 카드 안에 넣을 data 주소로 */
 async function download(url) {
-  const r = await fetch(url);
+  let r;
+  for (let i = 0; i < 4; i++) {                       // 사진 서버가 잠시 막으면(429) 조금 기다렸다 다시
+    r = await fetch(url);
+    if (r.ok || (r.status !== 429 && r.status < 500)) break;
+    await new Promise(z => setTimeout(z, 2000 * (i + 1)));
+  }
   if (!r.ok) throw new Error(`사진 내려받기 ${r.status}`);
   const type = (r.headers.get('content-type') || 'image/jpeg').split(';')[0];
   return `data:${type};base64,${Buffer.from(await r.arrayBuffer()).toString('base64')}`;
@@ -51,18 +56,22 @@ const SCENES = [
   { re: /\b(nba|basketball|76ers|lakers|celtics|warriors|bucks|knicks)\b/i, ko: /농구|NBA|KBL|덩크/, q: 'basketball game', first: true },
   { re: /\b(nfl|super bowl)\b/i, ko: /미식축구|NFL|슈퍼볼/, q: 'american football stadium', first: true },
   { re: /\b(mlb|baseball|kbo|npb|baystars|giants|tigers|dodgers|yankees)\b/i, ko: /야구|MLB|KBO|NPB|홈런|투수|타자|베이스타즈|자이언츠|타이거즈/, q: 'baseball stadium', first: true },
+  { re: /\b(figure skating|skating|skater)\b/i, ko: /피겨|스케이트|빙상/, q: 'ice skating', first: true },
+  { re: /\b(miss universe|miss world|pageant)\b/i, ko: /미스유니버스|미스 유니버스|미스월드|미인대회/, q: 'stage spotlight', first: true },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
   { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
   { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals?|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|champions)\b/i,
     ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼/, q: 'soccer stadium', first: true },
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|telenovela|dizi|game show|reality show)\b/i, ko: /드라마|예능|게임쇼|시즌 종영|종영|방송|시청률|리얼리티/, q: 'watching tv', first: true },
-  { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /게임|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: 'video game controller', first: true },
-  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회/, q: 'cinema', first: true },
+  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: 'cinema', first: true },
+  { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: 'video game controller', first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: 'concert stage', first: true },
+  { re: /\b(trade|tariffs?|exports?|imports?)\b/i, ko: /무역|관세|수출|수입/, q: 'cargo containers port', first: true },
+  { re: /\b(oil|gasoline|petrol|fuel)\b/i, ko: /유가|난방유|휘발유|기름값|석유/, q: 'oil barrels', first: true },
   { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, ko: /선거|투표|대통령|총리|장관|의회|국회|정부|정당/, q: 'parliament building', first: true },
   { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|market|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: 'stock market chart', first: false },
   { re: /\b(bitcoin|crypto|ethereum)\b/i, ko: /비트코인|가상화폐|암호화폐/, q: 'cryptocurrency', first: false },
-  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|날씨|기상/, q: 'weather sky', first: false },
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: 'weather sky', first: false },
   { re: /\b(earthquake|flood|wildfire|fire)\b/i, ko: /지진|홍수|산불|화재/, q: 'emergency response', first: true }
 ];
 const sceneOf = (en, ko) => SCENES.find(x => x.re.test(String(en || '')) || (x.ko && x.ko.test(String(ko || ''))));
