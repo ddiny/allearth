@@ -89,6 +89,7 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
   if (!hasPhotoSource()) return null;
   const cat = CATEGORY_EN[category] || '';
   const scene = sceneOf(titleEn, textKo);
+  if (!scene) log(`  · 화제 종류를 몰라 제목으로 찾아요: ${JSON.stringify(String(textKo).slice(0, 60))}`);
   const queries = [scene && scene.first ? scene.q : '', titleEn, scene && !scene.first ? scene.q : '', cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
     .map(q => String(q || '').trim()).filter(Boolean);
   for (const q of [...new Set(queries)]) {
