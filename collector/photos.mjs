@@ -69,7 +69,7 @@ const SCENES = [
     ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: 'soccer stadium', first: true },
   // '드라마틱'은 드라마가 아니에요
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
-    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: 'watching tv', first: true },
+    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: 'watching tv', first: true },
   { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: 'cinema', first: true },
   { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: 'video game controller', first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: 'concert stage', first: true },
