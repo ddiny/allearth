@@ -50,6 +50,10 @@ async function download(url) {
    first: 제목 검색보다 먼저 쓸지 (스포츠·드라마·정치는 제목 검색이 특히 잘 틀려요) */
 const SCENES = [
   // re: 영어 제목 · ko: 한국어 제목·요약 (앱 데이터의 한국어 문장이 화제 종류를 더 잘 알려줘요). 위에서부터 먼저 맞는 것을 써요
+  // 재난은 맨 앞: 다른 말(경기·방송 등)과 섞여도 재난 사진이 맞아요. 사람 얼굴이 크게 나오지 않는 장면으로 찾아요
+  { re: /\b(earthquake|quake|tsunami)\b/i, ko: /지진|쓰나미|여진/, q: 'seismograph', first: true },
+  { re: /\b(flood|flooding)\b/i, ko: /홍수|침수|범람/, q: 'flood water street', first: true },
+  { re: /\b(wildfire|bushfire|forest fire)\b/i, ko: /산불/, q: 'forest fire smoke', first: true },
   { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: 'tennis court', first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
@@ -60,19 +64,23 @@ const SCENES = [
   { re: /\b(miss universe|miss world|pageant)\b/i, ko: /미스유니버스|미스 유니버스|미스월드|미인대회/, q: 'stage spotlight', first: true },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
   { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
-  { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals?|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|champions)\b/i,
-    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼/, q: 'soccer stadium', first: true },
-  { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|telenovela|dizi|game show|reality show)\b/i, ko: /드라마|예능|게임쇼|시즌 종영|종영|방송|시청률|리얼리티/, q: 'watching tv', first: true },
+  // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
+  { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|ligue 1|brasileir[aã]o|mls|j-?league|k-?league|champions)\b/i,
+    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: 'soccer stadium', first: true },
+  // '드라마틱'은 드라마가 아니에요
+  { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
+    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: 'watching tv', first: true },
   { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: 'cinema', first: true },
   { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: 'video game controller', first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: 'concert stage', first: true },
   { re: /\b(trade|tariffs?|exports?|imports?)\b/i, ko: /무역|관세|수출|수입/, q: 'cargo containers port', first: true },
   { re: /\b(oil|gasoline|petrol|fuel)\b/i, ko: /유가|난방유|휘발유|기름값|석유/, q: 'oil barrels', first: true },
+  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: 'stock market chart', first: true },
+  { re: /\b(merger|acquisition|takeover)\b/i, ko: /합병|인수|매각|M&A/, q: 'business meeting', first: true },
+  { re: /\b(semiconductors?|chips?|chipmaker|hbm|dram|tsmc|samsung|hynix|ai|artificial intelligence)\b/i, ko: /반도체|HBM|D램|파운드리|인공지능|(^|[^A-Za-z])AI(?![A-Za-z])/, q: 'semiconductor chip', first: true },
   { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, ko: /선거|투표|대통령|총리|장관|의회|국회|정부|정당/, q: 'parliament building', first: true },
-  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|market|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: 'stock market chart', first: false },
   { re: /\b(bitcoin|crypto|ethereum)\b/i, ko: /비트코인|가상화폐|암호화폐/, q: 'cryptocurrency', first: false },
-  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: 'weather sky', first: false },
-  { re: /\b(earthquake|flood|wildfire|fire)\b/i, ko: /지진|홍수|산불|화재/, q: 'emergency response', first: true }
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: 'weather sky', first: false }
 ];
 const sceneOf = (en, ko) => SCENES.find(x => x.re.test(String(en || '')) || (x.ko && x.ko.test(String(ko || ''))));
 
