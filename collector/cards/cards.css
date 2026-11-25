@@ -158,22 +158,16 @@ mark {
 /* =====================================================================
    마지막 장  (.card.s-outro)
    ===================================================================== */
-.s-outro .flags { margin-top: 56px; display: flex; flex-wrap: wrap; gap: 4px 0; }
-.s-outro .flags .flag { width: 72px; height: 54px; margin-right: -4px; border-width: 3px; border-radius: 8px; }
-.s-outro .flags .flag:nth-child(8n+1) { transform: rotate(-8deg); }
-.s-outro .flags .flag:nth-child(8n+2) { transform: rotate(6deg); }
-.s-outro .flags .flag:nth-child(8n+3) { transform: rotate(-3deg); }
-.s-outro .flags .flag:nth-child(8n+4) { transform: rotate(9deg); }
-.s-outro .flags .flag:nth-child(8n+5) { transform: rotate(-6deg); }
-.s-outro .flags .flag:nth-child(8n+6) { transform: rotate(4deg); }
-.s-outro .flags .flag:nth-child(8n+7) { transform: rotate(-10deg); }
-.s-outro .flags .flag:nth-child(8n) { transform: rotate(7deg); }
-.s-outro.many .flags .flag { width: 54px; height: 41px; border-width: 3px; border-radius: 7px; }   /* 18개국까지 한 줄 */
-.s-outro h2 { margin-top: 36px; font: 860 72px/1.18 var(--f-body); letter-spacing: -.055em; }
+.s-outro h2 { margin-top: 64px; font: 860 72px/1.18 var(--f-body); letter-spacing: -.055em; }
 .s-outro .sub { margin-top: 18px; font-size: 27px; color: var(--ink-2); line-height: 1.5; letter-spacing: -.03em; }
-.s-outro .mascot { flex: 1 1 0; min-height: 0; position: relative; margin: 18px 0 24px; }
+.s-outro .mascot { flex: 1 1 0; min-height: 0; position: relative; margin: 8px 0 22px; }
+/* 에궁이 그림 크기의 상자 (남은 높이 × 그림 비율) — 말풍선을 그림 기준으로 붙이려고 */
+.s-outro .mascot .fig { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-58%); aspect-ratio: 469 / 760; }
 /* 남은 공간을 꽉 채우되 비율 유지 (브라우저마다 높이 계산이 달라도 보이게 absolute로) */
 .s-outro .mascot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 24px rgba(0,0,0,.18)); }   /* 표지 에궁이와 같은 그림자 */
+.s-outro .bubble { position: absolute; left: 84%; top: 3%; width: 262px; height: 172px; color: var(--ink); z-index: 2; }   /* 표지 말풍선과 같은 모양·크기 */
+.s-outro .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.s-outro .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
 .s-outro .acts { list-style: none; margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .s-outro .acts li { display: flex; flex-direction: column; align-items: flex-start; padding: 26px 24px 24px; border-radius: 24px; background: var(--card); }
 .s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
