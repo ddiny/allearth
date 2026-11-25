@@ -158,10 +158,10 @@ mark {
 /* =====================================================================
    마지막 장  (.card.s-outro)
    ===================================================================== */
-.s-outro h2 { margin-top: 64px; font: 860 72px/1.18 var(--f-body); letter-spacing: -.055em; }
-.s-outro .sub { margin-top: 18px; font-size: 27px; color: var(--ink-2); line-height: 1.5; letter-spacing: -.03em; }
-.s-outro .ask { margin: 2px 0 22px; text-align: center; font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -.03em; }   /* 하단 버튼으로 이어지는 문구 */
-.s-outro .mascot { flex: 1 1 0; min-height: 0; position: relative; margin: 16px 0 18px; }
+.s-outro h2 { margin-top: 48px; font: 860 72px/1.18 var(--f-body); letter-spacing: -.055em; }
+.s-outro .sub { margin-top: 28px; font-size: 27px; color: var(--ink-2); line-height: 1.5; letter-spacing: -.03em; }
+.s-outro .ask { margin: 0 0 26px; text-align: center; font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -.03em; }   /* 하단 버튼으로 이어지는 문구 */
+.s-outro .mascot { flex: 1 1 0; min-height: 0; position: relative; margin: 40px 0 44px; }   /* 부제·문구와 캐릭터 영역을 떼어 정돈 */
 /* 에궁이 그림 크기의 상자 (남은 높이 × 그림 비율) — 말풍선을 그림 기준으로 붙이려고 */
 .s-outro .mascot .fig { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); aspect-ratio: 461 / 760; }
 /* 남은 공간을 꽉 채우되 비율 유지 (브라우저마다 높이 계산이 달라도 보이게 absolute로) */
@@ -170,11 +170,11 @@ mark {
 .s-outro .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .s-outro .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; letter-spacing: -.03em; white-space: nowrap; }
 .s-outro .acts { list-style: none; margin-top: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.s-outro .acts li { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 6px 0 4px; }   /* 흰 카드 없이 아이콘 + 글자 */
+.s-outro .acts li { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0; }   /* 흰 카드 없이 아이콘 + 글자 */
 .s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
 .s-outro .acts svg { width: 28px; height: 28px; }
 .s-outro .acts b { margin-top: 18px; font-size: 28px; font-weight: 850; letter-spacing: -.04em; }
-.s-outro .note { margin-top: 28px; font-size: 19px; color: var(--mute); line-height: 1.6; letter-spacing: -.01em; }
+.s-outro .note { margin-top: 32px; font-size: 19px; color: var(--mute); line-height: 1.6; letter-spacing: -.01em; }
 .s-outro .foot { margin-top: 0; padding-top: 16px; }
 
 /* =====================================================================
