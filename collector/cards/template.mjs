@@ -97,6 +97,7 @@ export function dateParts(iso) {
 /* ---------- 1장: 표지 ---------- */
 /* 표지 캐릭터: 지구본을 든 에궁이. 웃는 얼굴 / 무표정(진지한 얼굴에서 눈썹만 뺀) / 진지한 얼굴 */
 const egungSrc = f => 'data:image/png;base64,' + readFileSync(new URL('./brand/' + f, import.meta.url)).toString('base64');
+const EGUNG_OUTRO = egungSrc('egung-outro.png');   /* 마지막 장: 돋보기와 지구본을 든 에궁이 */
 const EGUNG = egungSrc('egung-cover.png'), EGUNG_CALM = egungSrc('egung-cover-calm.png'), EGUNG_SERIOUS = egungSrc('egung-cover-serious.png');
 /* 말풍선: 손그림 느낌의 모양, 선 두께 2.5px 고정 */
 const BUBBLE = '<svg viewBox="0 0 262 172" aria-hidden="true"><path d="M100 127 C160 132 236 123 252 82 C264 42 220 5 138 3 C60 2 7 30 6 67 C5 100 30 123 72 126 Q72 141 62 150 Q87 140 100 127 Z" fill="#fff" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>';
@@ -194,6 +195,7 @@ export function outroHtml({ topics, total, handle }) {
   <div class="flags">${flags}</div>
   <h2>더 많은 나라 이야기는<br><mark class="brand-mark inline-logo" role="img" aria-label="AllEarth">${brandSvg('brand-symbol')}<span>allearth</span></mark>에서 만나요</h2>
   <p class="sub">지구본을 돌려 나라별 이야기를 둘러보세요.</p>
+  <div class="mascot"><img src="${EGUNG_OUTRO}" alt=""></div>
   <ul class="acts">${acts}</ul>
   <p class="note">이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.</p>
   ${handle ? `<div class="foot"><span></span>${handleHtml(handle)}</div>` : ''}

@@ -171,6 +171,8 @@ mark {
 .s-outro.many .flags .flag { width: 86px; height: 65px; border-width: 4px; border-radius: 10px; }
 .s-outro h2 { margin-top: 56px; font: 860 92px/1.16 var(--f-body); letter-spacing: -.055em; }
 .s-outro .sub { margin-top: 24px; font-size: 31px; color: var(--ink-2); line-height: 1.5; letter-spacing: -.03em; }
+.s-outro .mascot { flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 20px 0 28px; }
+.s-outro .mascot img { height: 100%; max-height: 420px; width: auto; object-fit: contain; filter: drop-shadow(0 18px 24px rgba(0,0,0,.18)); }   /* 표지 에궁이와 같은 그림자 */
 .s-outro .acts { list-style: none; margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .s-outro .acts li { display: flex; flex-direction: column; align-items: flex-start; padding: 26px 24px 24px; border-radius: 24px; background: var(--card); }
 .s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
