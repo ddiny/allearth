@@ -21,7 +21,7 @@ on:
         type: boolean
         default: true
       count:
-        description: '화제 카드 수 (비우면 앱 화제 전부). 표지 포함 10장 넘으면 앱에서 직접 올리기용'
+        description: '화제 카드 수 (비우면 8 = 표지 + 8개국 + 마지막 장 10장). 10장 넘으면 앱에서 직접 올리기용'
         type: string
         default: ''
       exclude:

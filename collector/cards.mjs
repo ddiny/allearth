@@ -5,7 +5,7 @@
 //
 // 환경 변수
 //  CARDS_SOURCE  allearth(기본) = AllEarth 앱 topics.js · ath = 예전 ath 앱의 실시간 화제(Supabase, topics.js 변환 전까지)
-//  CARDS_COUNT   화제 카드 수 (기본: 전부, 최대 18). 표지 포함 10장을 넘으면 앱에서 직접 올리기용
+//  CARDS_COUNT   화제 카드 수 (기본 8 = 표지 + 8 + 마지막 장 10장, 최대 18). 10장을 넘으면 앱에서 직접 올리기용
 //                (인스타 API는 캐러셀 10장까지. 화제가 9개면 마지막 장 없이 10장)
 //  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US)
 //  CARDS_PHOTOS  0 이면 사진 대신 국기 그래픽 (사진 사용 조건을 확인하기 전 등)
@@ -44,7 +44,8 @@ function hashtags(topics) {
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));
 const PHOTOS = !/^(0|false|no|off)$/i.test(process.env.CARDS_PHOTOS || '');
-const COUNT = Math.min(18, Math.max(1, parseInt(process.env.CARDS_COUNT || '18', 10) || 18));
+/* 화제 카드 수: 기본 8개 → 표지 + 8개국 + 마지막 장(더 많은 나라 이야기는…) = 10장 (인스타 API 한도) */
+const COUNT = Math.min(18, Math.max(1, parseInt(process.env.CARDS_COUNT || '8', 10) || 8));
 const OUT = process.env.CARDS_OUT || 'out/cards';
 const log = (...a) => console.log(...a);
 const kstDate = iso => new Date(new Date(iso).getTime() + 9 * 3600e3).toISOString().slice(0, 10);

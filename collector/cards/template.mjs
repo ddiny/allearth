@@ -107,7 +107,8 @@ const iga = w => { const c = (w || '').charCodeAt(w.length - 1) - 0xAC00; return
 
 export function coverHtml({ date, topics, countryCount, total, handle, footText = '' }) {
   const dp = dateParts(date);
-  const hero = topics.find(isLight);
+  /* 대표 화제 = 화제성 1위. 1위가 사건·사고·재난·정치 같은 무거운 소식이면 '들썩인 이유'와 어울리지 않아 목록형 표지로 */
+  const hero = topics[0] && isLight(topics[0]) ? topics[0] : null;
   if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
   const co = COUNTRY[hero.cc];
   /* 미리보기 4개는 가벼운 화제 먼저 (에궁이 옆에 사건·사고가 먼저 오지 않게). 나머지는 '+N개국 더 보기'로 */
