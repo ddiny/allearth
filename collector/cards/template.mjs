@@ -100,8 +100,9 @@ const egungSrc = f => 'data:image/png;base64,' + readFileSync(new URL('./brand/'
 const EGUNG = egungSrc('egung-cover.png'), EGUNG_SERIOUS = egungSrc('egung-cover-serious.png');
 /* 말풍선: 손그림 느낌의 모양, 선 두께 2.5px 고정 */
 const BUBBLE = '<svg viewBox="0 0 262 172" aria-hidden="true"><path d="M100 127 C160 132 236 123 252 82 C264 42 220 5 138 3 C60 2 7 30 6 67 C5 100 30 123 72 126 Q72 141 62 150 Q87 140 100 127 Z" fill="#fff" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>';
-/* 무거운 소식 (사건·사고·재난·정치) — 대표 화제면 에궁이를 진지한 표정으로, 미리보기에서는 뒤로 */
-const HEAVY = /지진|쓰나미|태풍|허리케인|홍수|산불|화재|폭발|붕괴|참사|사고|사망|숨져|숨진|부상|실종|피해|테러|총격|전쟁|공습|범죄|살인|체포|구속|기소|재판|폭행|성폭|선거|탄핵|시위|파업|추락|질병|감염|확진/;
+/* 무거운 소식 (사건·사고·재난·정치) — 대표 화제면 에궁이를 진지한 표정으로, 미리보기에서는 뒤로.
+   스포츠 기사에 흔한 '부상'·'피해'·'사고' 한 단어는 빼고, '부상자'·'교통사고'처럼 좁은 표현만 봐요 */
+const HEAVY = /지진|쓰나미|태풍|허리케인|홍수|산불|화재|폭발|붕괴|참사|사망|숨져|숨진|사상자|부상자|중상자|실종|이재민|피해자|테러|총격|총기|전쟁|공습|범죄|살인|체포|구속|기소|재판|폭행|성폭|선거|탄핵|시위|파업|(비행기|여객기|항공기|헬기|추락) ?(추락|사고)|대선|총선|질병|감염|확진|(교통|열차|항공|비행기|선박|안전|대형|사망|인명) ?사고|사고로/;
 const isLight = t => !HEAVY.test(`${t.title || ''} ${t.short_desc || ''}`);
 /* 받침 있으면 '이', 없으면 '가' (브라질이 / 프랑스가) */
 const iga = w => { const c = (w || '').charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 ? '이' : '가'; };
@@ -111,8 +112,9 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
   /* 대표 화제 = 화제성 1위 */
   const hero = topics[0];
   if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
-  /* 무거운 소식(사건·사고·재난·정치)이 1위면 에궁이 표정과 말풍선을 차분하게 */
-  const light = isLight(hero);
+  /* 말풍선 3단계: 1위가 무거우면 진지한 에궁이 + '무거운 소식이야', 2위 아래에만 있으면 '무거운 소식도 있어', 없으면 기본 */
+  const light = isLight(hero), anyHeavy = topics.some(t => !isLight(t));
+  const say = !light ? '오늘은 조금<br>무거운 소식이야' : anyHeavy ? '오늘은 조금<br>무거운 소식도 있어' : '지구 근황 배달 왔어!';
   const co = COUNTRY[hero.cc];
   /* 미리보기 4개는 가벼운 화제 먼저 (에궁이 옆에 사건·사고가 먼저 오지 않게). 나머지는 '+N개국 더 보기'로 */
   const rest = topics.filter(t => t !== hero), ordered = [...rest.filter(isLight), ...rest.filter(t => !isLight(t))];
@@ -136,7 +138,7 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
     ? `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>다른 나라 이야기도 에궁이가 챙겨왔어요</span>`
     : `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>에궁이가 오늘의 화제를 가져왔어요</span>`}</p>
   ${rows ? `<div class="more"><span class="lb">이런 이야기도 있어요</span><ul>${rows}</ul>${more > 0 ? `<span class="plus">+${more}개국 더 보기</span>` : ''}</div>` : ''}
-  <div class="bubble">${BUBBLE}<span>${light ? '지구 근황 배달 왔어!' : '오늘은 조금<br>무거운 소식이야'}</span></div>
+  <div class="bubble">${BUBBLE}<span>${say}</span></div>
   <img class="egung" src="${light ? EGUNG : EGUNG_SERIOUS}" alt="">
   <div class="foot"><span>${esc(footText || 'allearth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
