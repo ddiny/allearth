@@ -110,13 +110,27 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
   const hero = topics.find(isLight);
   if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
   const co = COUNTRY[hero.cc];
-  const rest = topics.filter(t => t !== hero), shown = rest.slice(0, 4), more = rest.length - shown.length;
+  /* 미리보기 4개는 가벼운 화제 먼저 (에궁이 옆에 사건·사고가 먼저 오지 않게). 나머지는 '+N개국 더 보기'로 */
+  const rest = topics.filter(t => t !== hero), ordered = [...rest.filter(isLight), ...rest.filter(t => !isLight(t))];
+  const shown = ordered.slice(0, 4), more = rest.length - shown.length;
+  const others = countryCount - 1;
+  /* 부제 첫 줄: 대표 화제 제목이 한 줄에 안 들어가면 '…'로 줄여요 ('소식 외'가 항상 바로 뒤에 붙게).
+     폭 계산: 한글·한자 1, 영문·숫자·기호 0.55, 띄어쓰기 0.3 (34px 기준 약 14칸까지 한 줄) */
+  const w = ch => /\s/.test(ch) ? .3 : /[\u1100-\u11FF\u3000-\u9FFF\uAC00-\uD7AF]/.test(ch) ? 1 : .55;
+  let shortTitle = hero.title;
+  if ([...hero.title].reduce((n, ch) => n + w(ch), 0) > 14.4) {
+    let n = 0, cut = '';
+    for (const ch of hero.title) { if (n + w(ch) > 13.4) break; n += w(ch); cut += ch; }
+    shortTitle = cut.replace(/[\s,·\-]+$/, '') + '…';
+  }
   const rows = shown.map(t => `<li><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><span>${esc(COUNTRY[t.cc].ko)}${t.category_label ? ` · ${esc(t.category_label)}` : ''}</span><b>${esc(t.title)}</b></div></li>`).join('');
   return page(`<div class="card s-cover hero">
   <div class="top">${LOGO}<span class="mono date">${dp.dot} ${dp.dow}</span></div>
   <div class="pill">allearth 지구 근황</div>
   <h1>오늘 <mark>${esc(co.ko)}</mark>${iga(co.ko)}<br>들썩인 이유</h1>
-  <p class="sub"><span>${esc(hero.title)} 소식 외</span><span>${countryCount - 1}개국 화제를 에궁이가 모아왔어요</span></p>
+  <p class="sub">${others > 0
+    ? `<span class="l1"><em>${esc(shortTitle)}</em><i>소식 외</i></span><span>${others}개국 화제를 에궁이가 모아왔어요</span>`
+    : `<span class="l1"><em>${esc(hero.title)}</em></span><span>오늘의 화제를 에궁이가 가져왔어요</span>`}</p>
   ${rows ? `<div class="more"><span class="lb">이런 이야기도 있어요</span><ul>${rows}</ul>${more > 0 ? `<span class="plus">+${more}개국 더 보기</span>` : ''}</div>` : ''}
   <div class="bubble">${BUBBLE}<span>지구 근황 배달 왔어!</span></div>
   <img class="egung" src="${EGUNG}" alt="">

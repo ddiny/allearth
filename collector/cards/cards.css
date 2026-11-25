@@ -98,6 +98,10 @@ mark {
 .s-cover.hero .foot { margin-top: auto; }
 .s-cover.hero .sub { margin-top: 30px; font-size: 34px; font-weight: 600; line-height: 1.45; color: var(--ink-2); letter-spacing: -.02em; }
 .s-cover.hero .sub span { display: block; max-width: 560px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 대표 화제 제목이 길면 제목만 줄이고 '소식 외'는 항상 보이게 */
+.s-cover.hero .sub .l1 { display: flex; }
+.s-cover.hero .sub .l1 em { font-style: normal; flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-cover.hero .sub .l1 i { font-style: normal; flex: none; margin-left: .28em; }
 .s-cover.hero .more { position: absolute; left: var(--pad-x); top: 650px; width: 450px; z-index: 1; }
 .s-cover.hero .more .lb { display: block; margin-bottom: 16px; font-size: 22px; font-weight: 600; color: var(--mute); }
 .s-cover.hero .more ul { list-style: none; }
