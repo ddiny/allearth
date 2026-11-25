@@ -114,7 +114,7 @@ mark {
 .s-cover.hero .egung { position: absolute; right: -10px; bottom: 115px; width: 600px; filter: drop-shadow(0 18px 24px rgba(0,0,0,.18)); }
 .s-cover.hero .bubble { position: absolute; right: var(--pad-x); top: 375px; width: 262px; height: 172px; color: var(--ink); z-index: 2; }
 .s-cover.hero .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.s-cover.hero .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; text-align: center; line-height: 1.3; }
+.s-cover.hero .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 27px; font-weight: 800; letter-spacing: -.03em; white-space: nowrap; text-align: center; line-height: 1.25; }
 
 /* 화제가 9개 이상이면 촘촘한 목록 (.compact) */
 .s-cover.compact h1 { font-size: 84px; }
@@ -167,7 +167,7 @@ mark {
 .s-outro .mascot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 24px rgba(0,0,0,.18)); }   /* 표지 에궁이와 같은 그림자 */
 .s-outro .bubble { position: absolute; left: 84%; top: 3%; width: 262px; height: 172px; color: var(--ink); z-index: 2; }   /* 표지 말풍선과 같은 모양·크기 */
 .s-outro .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.s-outro .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
+.s-outro .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; letter-spacing: -.03em; white-space: nowrap; }
 .s-outro .acts { list-style: none; margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .s-outro .acts li { display: flex; flex-direction: column; align-items: flex-start; padding: 26px 24px 24px; border-radius: 24px; background: var(--card); }
 .s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
