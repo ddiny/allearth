@@ -95,7 +95,7 @@ export function dateParts(iso) {
 }
 
 /* ---------- 1장: 표지 ---------- */
-/* 표지 캐릭터: 에궁이 (지도에 allearth 심볼이 인쇄된 버전). 무거운 소식이면 진지한 표정 */
+/* 표지 캐릭터: 지구본을 든 에궁이. 무거운 소식이면 진지한 표정 */
 const egungSrc = f => 'data:image/png;base64,' + readFileSync(new URL('./brand/' + f, import.meta.url)).toString('base64');
 const EGUNG = egungSrc('egung-cover.png'), EGUNG_SERIOUS = egungSrc('egung-cover-serious.png');
 /* 말풍선: 손그림 느낌의 모양, 선 두께 2.5px 고정 */
