@@ -94,6 +94,21 @@ async function shoot(page, html, file) {
     await Promise.all([...document.images].map(img => img.complete ? null : new Promise(r => { img.onload = img.onerror = r; setTimeout(r, 8000); })));
     const photo = document.querySelector('img[data-photo]');
     if (photo && !photo.naturalWidth) { photo.closest('.art')?.classList.remove('has-photo'); photo.remove(); document.querySelector('[data-credit]')?.remove(); }   // 못 불러온 사진은 빼고 국기 그래픽으로
+    /* data-focus="bright": 어두운 배경의 밝은 주인공(달 등)이 잘리지 않게 가운데로 */
+    const f = document.querySelector('img[data-photo][data-focus="bright"]');
+    if (f && f.naturalWidth) {
+      const n = 96, k = n / Math.max(f.naturalWidth, f.naturalHeight), w = Math.round(f.naturalWidth * k), h = Math.round(f.naturalHeight * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.drawImage(f, 0, 0, w, h);
+      const d = g.getImageData(0, 0, w, h).data; let sx = 0, sy = 0, sn = 0, max = 0;
+      for (let i = 0; i < d.length; i += 4) max = Math.max(max, d[i] + d[i + 1] + d[i + 2]);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; if (d[i] + d[i + 1] + d[i + 2] > max * .6) { sx += x; sy += y; sn++; } }
+      if (sn) {
+        const cx = (sx / sn + .5) / w, cy = (sy / sn + .5) / h, bw = f.clientWidth, bh = f.clientHeight;
+        const s = Math.max(bw / f.naturalWidth, bh / f.naturalHeight), iw = f.naturalWidth * s, ih = f.naturalHeight * s;
+        const pos = (cc, I, B) => I - B < 1 ? 50 : Math.min(100, Math.max(0, (cc * I - B / 2) / (I - B) * 100));
+        f.style.objectPosition = `${pos(cx, iw, bw).toFixed(1)}% ${pos(cy, ih, bh).toFixed(1)}%`;
+      }
+    }
     return !!document.querySelector('img[data-photo]');
   });
   const res = await fit(page);
@@ -135,7 +150,7 @@ export async function main() {
     setPhotoHistory(hist, date);
     for (const t of topics.filter(t => !t.image_url)) {
       const p = await findPhoto({ titleEn: t.title_en, textKo: `${t.title} ${t.short_desc}`, category: t.category_key || t.category_label, countryEn: COUNTRY[t.cc].en.toLowerCase(), log });
-      if (p) { t.image_url = p.url; t.image_credit = p.credit; log(`  · ${t.cc} 사진: "${p.query}" → ${p.credit}`); }
+      if (p) { t.image_url = p.url; t.image_credit = p.credit; t.image_focus = p.focus; log(`  · ${t.cc} 사진: "${p.query}" → ${p.credit}`); }
       else log(`  · ${t.cc} 어울리는 사진을 못 찾아 국기 그래픽으로 둬요`);
     }
     await mkdir(OUT, { recursive: true });

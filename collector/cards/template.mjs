@@ -163,7 +163,7 @@ export function listCoverHtml({ date, topics, countryCount, total, handle, footT
 /* ---------- 2장~: 나라별 화제 (앱 문구 그대로) ---------- */
 export function topicHtml(t, { index, total, handle }) {
   const co = COUNTRY[t.cc];
-  const img = t.image_url ? `<img class="photo" src="${esc(t.image_url)}" alt="${esc(t.image_alt || '')}" data-photo${t.image_position ? ` style="object-position:${esc(t.image_position)}"` : ''}>` : '';
+  const img = t.image_url ? `<img class="photo" src="${esc(t.image_url)}" alt="${esc(t.image_alt || '')}" data-photo${t.image_focus ? ` data-focus="${esc(t.image_focus)}"` : ''}${t.image_position ? ` style="object-position:${esc(t.image_position)}"` : ''}>` : '';
   /* 사진 출처: 앱에 적힌 문구를 그대로 사진 아래에 */
   const credit = t.image_url && t.image_credit ? `<p class="credit-line" data-credit>${esc(t.image_credit)}</p>` : '';
   return page(`<div class="card s-topic editorial" data-fit>

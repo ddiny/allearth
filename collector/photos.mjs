@@ -77,7 +77,7 @@ const SCENES = [
   { re: /\b(figure skating|skating|skater)\b/i, ko: /피겨|스케이트|빙상/, q: 'ice skating', first: true },
   { re: /\b(miss universe|miss world|pageant)\b/i, ko: /미스유니버스|미스 유니버스|미스월드|미인대회/, q: 'stage spotlight', first: true },
   { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: ['ice hockey', 'hockey puck', 'hockey stick', 'ice rink'], first: true },
-  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true, not: /eclipse|blood|red moon|orange/ },
+  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true, not: /eclipse|blood|red moon|orange/, focus: 'bright' },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
   { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
   // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
@@ -128,7 +128,7 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
       const data = await download(p.url);
       used.add(p.id); usedAuthors.add(p.author);
       if (today) history.push({ date: today, id: p.id, author: p.author, q });
-      return { url: data, credit: `사진: ${String(p.author || photoSource()).slice(0, 40)} / ${photoSource()}`, link: p.link, query: q };
+      return { url: data, credit: `사진: ${String(p.author || photoSource()).slice(0, 40)} / ${photoSource()}`, link: p.link, query: q, focus: (scene && scene.focus) || '' };
     } catch (e) { log(`  ⚠ ${e.message}`); }
   }
   return null;
