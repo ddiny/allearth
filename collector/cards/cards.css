@@ -94,6 +94,24 @@ mark {
 .s-cover .go span { width: 64px; height: 64px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
 .s-cover .go svg { width: 30px; height: 30px; }
 
+/* 표지 · 에궁이 대표 화제형 (.hero) — 가벼운 대표 화제가 있을 때 */
+.s-cover.hero .foot { margin-top: auto; }
+.s-cover.hero .sub { margin-top: 30px; font-size: 34px; font-weight: 600; line-height: 1.45; color: var(--ink-2); letter-spacing: -.02em; }
+.s-cover.hero .sub span { display: block; max-width: 560px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-cover.hero .more { position: absolute; left: var(--pad-x); top: 650px; width: 450px; z-index: 1; }
+.s-cover.hero .more .lb { display: block; margin-bottom: 16px; font-size: 22px; font-weight: 600; color: var(--mute); }
+.s-cover.hero .more ul { list-style: none; }
+.s-cover.hero .more li { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; padding: 16px 18px; border-radius: 20px; background: var(--card); box-shadow: 0 1px 0 rgba(18,19,24,.06), 0 0 0 1px var(--line); }
+.s-cover.hero .more .flag { flex: none; width: 52px; height: 39px; border-radius: 7px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
+.s-cover.hero .more div { min-width: 0; display: flex; flex-direction: column; }
+.s-cover.hero .more li span { font-size: 18px; font-weight: 600; color: var(--mute); }
+.s-cover.hero .more b { font-size: 24px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-cover.hero .plus { display: inline-block; margin-top: 4px; font-size: 22px; font-weight: 700; color: var(--ink-2); }
+.s-cover.hero .egung { position: absolute; right: -10px; bottom: 115px; width: 600px; filter: drop-shadow(0 18px 24px rgba(0,0,0,.18)); }
+.s-cover.hero .bubble { position: absolute; right: var(--pad-x); top: 375px; width: 262px; height: 172px; color: var(--ink); z-index: 2; }
+.s-cover.hero .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.s-cover.hero .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
+
 /* 화제가 9개 이상이면 촘촘한 목록 (.compact) */
 .s-cover.compact h1 { font-size: 84px; }
 .s-cover.compact .list { gap: 8px 12px; }

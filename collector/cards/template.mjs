@@ -95,7 +95,37 @@ export function dateParts(iso) {
 }
 
 /* ---------- 1장: 표지 ---------- */
+/* 표지 캐릭터: 에궁이 (지도에 allearth 심볼이 인쇄된 버전) */
+const EGUNG = 'data:image/png;base64,' + readFileSync(new URL('./brand/egung-cover.png', import.meta.url)).toString('base64');
+/* 말풍선: 손그림 느낌의 모양, 선 두께 2.5px 고정 */
+const BUBBLE = '<svg viewBox="0 0 262 172" aria-hidden="true"><path d="M100 127 C160 132 236 123 252 82 C264 42 220 5 138 3 C60 2 7 30 6 67 C5 100 30 123 72 126 Q72 141 62 150 Q87 140 100 127 Z" fill="#fff" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>';
+/* 표지 제목으로 쓰면 곤란한 무거운 소식 (사건·사고·재난·정치) — 이런 화제는 대표로 고르지 않아요 */
+const HEAVY = /지진|쓰나미|태풍|허리케인|홍수|산불|화재|폭발|붕괴|참사|사고|사망|숨져|숨진|부상|실종|피해|테러|총격|전쟁|공습|범죄|살인|체포|구속|기소|재판|폭행|성폭|선거|탄핵|시위|파업|추락|질병|감염|확진/;
+const isLight = t => !HEAVY.test(`${t.title || ''} ${t.short_desc || ''}`);
+/* 받침 있으면 '이', 없으면 '가' (브라질이 / 프랑스가) */
+const iga = w => { const c = (w || '').charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c <= 11171 && c % 28 ? '이' : '가'; };
+
 export function coverHtml({ date, topics, countryCount, total, handle, footText = '' }) {
+  const dp = dateParts(date);
+  const hero = topics.find(isLight);
+  if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
+  const co = COUNTRY[hero.cc];
+  const rest = topics.filter(t => t !== hero), shown = rest.slice(0, 4), more = rest.length - shown.length;
+  const rows = shown.map(t => `<li><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><span>${esc(COUNTRY[t.cc].ko)}${t.category_label ? ` · ${esc(t.category_label)}` : ''}</span><b>${esc(t.title)}</b></div></li>`).join('');
+  return page(`<div class="card s-cover hero">
+  <div class="top">${LOGO}<span class="mono date">${dp.dot} ${dp.dow}</span></div>
+  <div class="pill">allearth 지구 근황</div>
+  <h1>오늘 <mark>${esc(co.ko)}</mark>${iga(co.ko)}<br>들썩인 이유</h1>
+  <p class="sub"><span>${esc(hero.title)} 소식 외</span><span>${countryCount - 1}개국 화제를 에궁이가 모아왔어요</span></p>
+  ${rows ? `<div class="more"><span class="lb">이런 이야기도 있어요</span><ul>${rows}</ul>${more > 0 ? `<span class="plus">+${more}개국 더 보기</span>` : ''}</div>` : ''}
+  <div class="bubble">${BUBBLE}<span>지구 근황 배달 왔어!</span></div>
+  <img class="egung" src="${EGUNG}" alt="">
+  <div class="foot"><span>${esc(footText || 'allearth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
+</div>`);
+}
+
+/* 대표로 쓸 가벼운 화제가 없을 때: 예전 목록형 표지 */
+export function listCoverHtml({ date, topics, countryCount, total, handle, footText = '' }) {
   const dp = dateParts(date), compact = topics.length > 9;
   const tiles = topics.map((t, i) => {
     const co = COUNTRY[t.cc];
