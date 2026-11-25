@@ -169,11 +169,11 @@ mark {
 .s-outro .bubble { position: absolute; left: 84%; top: 3%; width: 262px; height: 172px; color: var(--ink); z-index: 2; }   /* 표지 말풍선과 같은 모양·크기 */
 .s-outro .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .s-outro .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; letter-spacing: -.03em; white-space: nowrap; }
-.s-outro .acts { list-style: none; margin-top: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.s-outro .acts li { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 26px 24px 24px; border-radius: 24px; background: var(--card); }
-.s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
-.s-outro .acts svg { width: 28px; height: 28px; }
-.s-outro .acts b { margin-top: 18px; font-size: 28px; font-weight: 850; letter-spacing: -.04em; }
+.s-outro .acts { list-style: none; margin-top: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }   /* 시안: 카드·원 없이 선 아이콘 + 글자 */
+.s-outro .acts li { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 0 4px; }
+.s-outro .acts span { width: 56px; height: 56px; color: var(--ink); display: grid; place-items: center; }
+.s-outro .acts svg { width: 52px; height: 52px; }
+.s-outro .acts b { margin-top: 10px; font-size: 28px; font-weight: 600; letter-spacing: -.03em; }
 .s-outro .note { margin-top: 28px; font-size: 19px; color: var(--mute); line-height: 1.6; letter-spacing: -.01em; }
 .s-outro .foot { margin-top: 0; padding-top: 16px; }
 

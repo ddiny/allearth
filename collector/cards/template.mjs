@@ -186,7 +186,7 @@ export function topicHtml(t, { index, total, handle }) {
 
 /* ---------- 마지막 장 (화제가 8개 이하일 때만. 9개면 10장 한도 때문에 빠져요) ---------- */
 export function outroHtml({ topics, total, handle }) {
-  const acts = [['save', '저장하기'], ['share', '공유하기'], ['follow', '팔로우']]
+  const acts = [['save', '저장'], ['share', '공유'], ['follow', '팔로우']]
     .map(([k, a]) => `<li><span>${ICON[k]}</span><b>${a}</b></li>`).join('');
   return page(`<div class="card s-outro">
   <div class="top">${LOGO}<span class="count mono">${pad(total)} / ${pad(total)}</span></div>
