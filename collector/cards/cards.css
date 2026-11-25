@@ -170,7 +170,7 @@ mark {
 .s-outro .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .s-outro .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; letter-spacing: -.03em; white-space: nowrap; }
 .s-outro .acts { list-style: none; margin-top: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.s-outro .acts li { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 26px 24px 24px; border-radius: 24px; background: var(--card); }
+.s-outro .acts li { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 6px 0 4px; }   /* 흰 카드 없이 아이콘 + 글자 */
 .s-outro .acts span { width: 60px; height: 60px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; }
 .s-outro .acts svg { width: 28px; height: 28px; }
 .s-outro .acts b { margin-top: 18px; font-size: 28px; font-weight: 850; letter-spacing: -.04em; }
