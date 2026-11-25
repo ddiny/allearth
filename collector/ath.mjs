@@ -17,7 +17,7 @@ const BADGE = { hot: 'HOT', rising: 'RISING', new: 'TODAY', talked: 'ONGOING' };
 const RANK = { hot: 0, rising: 1, new: 2, talked: 3 };
 const kstDate = iso => new Date(new Date(iso).getTime() + 9 * 3600e3).toISOString().slice(0, 10);
 
-export async function loadAth({ max = 9, log = console.log } = {}) {
+export async function loadAth({ max = 9, exclude = new Set(), log = console.log } = {}) {
   let r;
   try {
     r = await fetch(`${URL_}/rest/v1/trends?select=*,trend_news(*)&order=published_at.desc`, { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
@@ -42,7 +42,8 @@ export async function loadAth({ max = 9, log = console.log } = {}) {
      같은 이야기(같은 키워드·제목)가 여러 나라에 있으면 한 번만 넣어요 — ath 앱도 같은 화제는 하나로 묶어 보여줘요 */
   const norm = v => String(v || '').replace(/\s+/g, '').toLowerCase();
   const seen = new Set(), picked = [];
-  for (const x of [...best.values()].sort((a, b) => (b.heat || 0) - (a.heat || 0))) {
+  /* 뺀 나라는 고르기 전에 제외 → 빈자리는 다음 순위 나라가 채워요 */
+  for (const x of [...best.values()].filter(x => !exclude.has(String(x.cc).toUpperCase())).sort((a, b) => (b.heat || 0) - (a.heat || 0))) {
     const k1 = norm(x.keyword_id), k2 = norm(x.title);
     if ((k1 && seen.has(k1)) || seen.has(k2)) continue;
     if (k1) seen.add(k1); seen.add(k2);

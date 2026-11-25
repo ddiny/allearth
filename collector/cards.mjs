@@ -60,7 +60,7 @@ function loadFont() {
 
 /* ---------- 1. 앱 화제 읽기 ---------- */
 async function pick() {
-  const { rows, date, dateLabel } = SOURCE === 'ath' ? await loadAth({ max: Math.min(COUNT, 9), log }) : loadAllEarth();
+  const { rows, date, dateLabel } = SOURCE === 'ath' ? await loadAth({ max: Math.min(COUNT, 9), exclude: EXCLUDE, log }) : loadAllEarth();
   if (SOURCE !== 'ath') log(`AllEarth 앱 화제를 읽어요 (topics.js · ${dateLabel} · ${rows.length}개)`);
   const topics = rows
     .filter(r => COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title)
