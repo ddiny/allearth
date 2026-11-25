@@ -114,7 +114,7 @@ mark {
 .s-cover.hero .egung { position: absolute; right: -10px; bottom: 115px; width: 600px; filter: drop-shadow(0 18px 24px rgba(0,0,0,.18)); }
 .s-cover.hero .bubble { position: absolute; right: var(--pad-x); top: 375px; width: 262px; height: 172px; color: var(--ink); z-index: 2; }
 .s-cover.hero .bubble svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.s-cover.hero .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; }
+.s-cover.hero .bubble span { position: absolute; left: 0; right: 0; top: 0; height: 130px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; white-space: nowrap; text-align: center; line-height: 1.3; }
 
 /* 화제가 9개 이상이면 촘촘한 목록 (.compact) */
 .s-cover.compact h1 { font-size: 84px; }

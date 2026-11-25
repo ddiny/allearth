@@ -111,6 +111,8 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
   /* 대표 화제 = 화제성 1위 */
   const hero = topics[0];
   if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
+  /* 무거운 소식(사건·사고·재난·정치)이 1위면 에궁이 표정과 말풍선을 차분하게 */
+  const light = isLight(hero);
   const co = COUNTRY[hero.cc];
   /* 미리보기 4개는 가벼운 화제 먼저 (에궁이 옆에 사건·사고가 먼저 오지 않게). 나머지는 '+N개국 더 보기'로 */
   const rest = topics.filter(t => t !== hero), ordered = [...rest.filter(isLight), ...rest.filter(t => !isLight(t))];
@@ -134,8 +136,8 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
     ? `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>다른 나라 이야기도 에궁이가 챙겨왔어요</span>`
     : `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>에궁이가 오늘의 화제를 가져왔어요</span>`}</p>
   ${rows ? `<div class="more"><span class="lb">이런 이야기도 있어요</span><ul>${rows}</ul>${more > 0 ? `<span class="plus">+${more}개국 더 보기</span>` : ''}</div>` : ''}
-  <div class="bubble">${BUBBLE}<span>지구 근황 배달 왔어!</span></div>
-  <img class="egung" src="${isLight(hero) ? EGUNG : EGUNG_SERIOUS}" alt="">
+  <div class="bubble">${BUBBLE}<span>${light ? '지구 근황 배달 왔어!' : '오늘은 조금<br>무거운 소식이야'}</span></div>
+  <img class="egung" src="${light ? EGUNG : EGUNG_SERIOUS}" alt="">
   <div class="foot"><span>${esc(footText || 'allearth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
