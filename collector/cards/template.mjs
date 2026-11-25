@@ -192,8 +192,8 @@ export function outroHtml({ topics, total, handle }) {
   <div class="top">${LOGO}<span class="count mono">${pad(total)} / ${pad(total)}</span></div>
   <h2>더 많은 나라 이야기는<br><mark class="brand-mark">allearth</mark>에서 만나요</h2>
   <p class="sub">지구본을 돌려 나라별 이야기를 둘러보세요.</p>
-  <div class="cta">더 많은 이야기 만나기<span>${ARROW}</span></div>
   <div class="mascot"><div class="fig"><img src="${EGUNG_OUTRO}" alt=""><div class="bubble">${BUBBLE}<span>또 올게!</span></div></div></div>
+  <div class="cta">더 많은 이야기 만나기<span>${ARROW}</span></div>
   <ul class="acts">${acts}</ul>
   <p class="note">이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.</p>
   ${handle ? `<div class="foot"><span></span>${handleHtml(handle)}</div>` : ''}
