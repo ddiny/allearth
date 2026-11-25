@@ -95,9 +95,9 @@ export function dateParts(iso) {
 }
 
 /* ---------- 1장: 표지 ---------- */
-/* 표지 캐릭터: 지구본을 든 에궁이. 무거운 소식이면 진지한 표정 */
+/* 표지 캐릭터: 지구본을 든 에궁이. 웃는 얼굴 / 무표정(진지한 얼굴에서 눈썹만 뺀) / 진지한 얼굴 */
 const egungSrc = f => 'data:image/png;base64,' + readFileSync(new URL('./brand/' + f, import.meta.url)).toString('base64');
-const EGUNG = egungSrc('egung-cover.png'), EGUNG_SERIOUS = egungSrc('egung-cover-serious.png');
+const EGUNG = egungSrc('egung-cover.png'), EGUNG_CALM = egungSrc('egung-cover-calm.png'), EGUNG_SERIOUS = egungSrc('egung-cover-serious.png');
 /* 말풍선: 손그림 느낌의 모양, 선 두께 2.5px 고정 */
 const BUBBLE = '<svg viewBox="0 0 262 172" aria-hidden="true"><path d="M100 127 C160 132 236 123 252 82 C264 42 220 5 138 3 C60 2 7 30 6 67 C5 100 30 123 72 126 Q72 141 62 150 Q87 140 100 127 Z" fill="#fff" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>';
 /* 무거운 소식 (사건·사고·재난·정치) — 대표 화제면 에궁이를 진지한 표정으로, 미리보기에서는 뒤로.
@@ -112,7 +112,7 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
   /* 대표 화제 = 화제성 1위 */
   const hero = topics[0];
   if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
-  /* 말풍선 3단계: 1위가 무거우면 진지한 에궁이 + '무거운 소식이야', 2위 아래에만 있으면 '무거운 소식도 있어', 없으면 기본 */
+  /* 3단계: 1위가 무거우면 진지한 에궁이 + '무거운 소식이야', 2위 아래에만 있으면 무표정 에궁이 + '무거운 소식도 있어', 없으면 웃는 에궁이 */
   const light = isLight(hero), anyHeavy = topics.some(t => !isLight(t));
   const say = !light ? '오늘은 조금<br>무거운 소식이야' : anyHeavy ? '오늘은 조금<br>무거운 소식도 있어' : '지구 근황 배달 왔어!';
   const co = COUNTRY[hero.cc];
@@ -139,7 +139,7 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
     : `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>에궁이가 오늘의 화제를 가져왔어요</span>`}</p>
   ${rows ? `<div class="more"><span class="lb">이런 이야기도 있어요</span><ul>${rows}</ul>${more > 0 ? `<span class="plus">+${more}개국 더 보기</span>` : ''}</div>` : ''}
   <div class="bubble">${BUBBLE}<span>${say}</span></div>
-  <img class="egung" src="${light ? EGUNG : EGUNG_SERIOUS}" alt="">
+  <img class="egung" src="${!light ? EGUNG_SERIOUS : anyHeavy ? EGUNG_CALM : EGUNG}" alt="">
   <div class="foot"><span>${esc(footText || 'allearth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
