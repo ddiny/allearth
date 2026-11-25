@@ -77,12 +77,12 @@ const SCENES = [
   { re: /\b(figure skating|skating|skater)\b/i, ko: /피겨|스케이트|빙상/, q: 'ice skating', first: true },
   { re: /\b(miss universe|miss world|pageant)\b/i, ko: /미스유니버스|미스 유니버스|미스월드|미인대회/, q: 'stage spotlight', first: true },
   { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: ['ice hockey', 'hockey puck', 'hockey stick', 'ice rink'], first: true },
-  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true },
+  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true, not: /eclipse|blood|red moon|orange/ },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
   { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
   // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
   { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|ligue 1|brasileir[aã]o|mls|j-?league|k-?league|champions)\b/i,
-    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'soccer fans', 'football pitch', 'soccer player'], first: true },
+    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'football pitch', 'soccer cleats', 'stadium lights'], first: true },
   // '드라마틱'은 드라마가 아니에요
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
     ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'television remote', 'tv studio', 'television screen'], first: true },
@@ -96,7 +96,7 @@ const SCENES = [
   { re: /\b(semiconductors?|chips?|chipmaker|hbm|dram|tsmc|samsung|hynix|ai|artificial intelligence)\b/i, ko: /반도체|HBM|D램|파운드리|인공지능|(^|[^A-Za-z])AI(?![A-Za-z])/, q: 'semiconductor chip', first: true },
   { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, ko: /선거|투표|대통령|총리|장관|의회|국회|정부|정당/, q: 'parliament building', first: true },
   { re: /\b(bitcoin|crypto|ethereum)\b/i, ko: /비트코인|가상화폐|암호화폐/, q: 'cryptocurrency', first: false },
-  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: ['weather sky', 'rain umbrella', 'storm clouds', 'rainy window'], first: true }
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: ['weather sky', 'rain umbrella', 'cloudy sky', 'rainy window'], first: true, not: /lightning|tornado|thunder/ }
 ];
 const sceneOf = (en, ko) => SCENES.find(x => x.re.test(String(en || '')) || (x.ko && x.ko.test(String(ko || ''))));
 
@@ -115,7 +115,9 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
     const need = words(q);
     let hits;
     try { hits = await search(q); } catch (e) { log(`  ⚠ 사진 검색 실패 (${e.message})`); return null; }
-    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && (!need.length || need.some(w => String(x.text || '').toLowerCase().includes(w))));
+    /* not: 그 장면에 어울리지 않는 사진 태그 (예: 슈퍼문인데 월식의 붉은 달) */
+    const bad = scene && scene.not;
+    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && (!need.length || need.some(w => String(x.text || '').toLowerCase().includes(w))) && !(bad && bad.test(String(x.text || ''))));
     /* 우선순위: 최근 3주 안 쓴 사진·작가 → 안 쓴 사진 → 아무거나. 같은 조건이면 날짜마다 다른 순서로 */
     const rot = a => a.length ? [...a.slice(dayIndex % a.length), ...a.slice(0, dayIndex % a.length)] : a;
     const fresh = ok.filter(x => !recentIds.has(x.id));
