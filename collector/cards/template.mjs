@@ -95,11 +95,12 @@ export function dateParts(iso) {
 }
 
 /* ---------- 1장: 표지 ---------- */
-/* 표지 캐릭터: 에궁이 (지도에 allearth 심볼이 인쇄된 버전) */
-const EGUNG = 'data:image/png;base64,' + readFileSync(new URL('./brand/egung-cover.png', import.meta.url)).toString('base64');
+/* 표지 캐릭터: 에궁이 (지도에 allearth 심볼이 인쇄된 버전). 무거운 소식이면 진지한 표정 */
+const egungSrc = f => 'data:image/png;base64,' + readFileSync(new URL('./brand/' + f, import.meta.url)).toString('base64');
+const EGUNG = egungSrc('egung-cover.png'), EGUNG_SERIOUS = egungSrc('egung-cover-serious.png');
 /* 말풍선: 손그림 느낌의 모양, 선 두께 2.5px 고정 */
 const BUBBLE = '<svg viewBox="0 0 262 172" aria-hidden="true"><path d="M100 127 C160 132 236 123 252 82 C264 42 220 5 138 3 C60 2 7 30 6 67 C5 100 30 123 72 126 Q72 141 62 150 Q87 140 100 127 Z" fill="#fff" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>';
-/* 표지 제목으로 쓰면 곤란한 무거운 소식 (사건·사고·재난·정치) — 이런 화제는 대표로 고르지 않아요 */
+/* 무거운 소식 (사건·사고·재난·정치) — 대표 화제면 에궁이를 진지한 표정으로, 미리보기에서는 뒤로 */
 const HEAVY = /지진|쓰나미|태풍|허리케인|홍수|산불|화재|폭발|붕괴|참사|사고|사망|숨져|숨진|부상|실종|피해|테러|총격|전쟁|공습|범죄|살인|체포|구속|기소|재판|폭행|성폭|선거|탄핵|시위|파업|추락|질병|감염|확진/;
 const isLight = t => !HEAVY.test(`${t.title || ''} ${t.short_desc || ''}`);
 /* 받침 있으면 '이', 없으면 '가' (브라질이 / 프랑스가) */
@@ -107,21 +108,21 @@ const iga = w => { const c = (w || '').charCodeAt(w.length - 1) - 0xAC00; return
 
 export function coverHtml({ date, topics, countryCount, total, handle, footText = '' }) {
   const dp = dateParts(date);
-  /* 대표 화제 = 화제성 1위. 1위가 사건·사고·재난·정치 같은 무거운 소식이면 '들썩인 이유'와 어울리지 않아 목록형 표지로 */
-  const hero = topics[0] && isLight(topics[0]) ? topics[0] : null;
+  /* 대표 화제 = 화제성 1위 */
+  const hero = topics[0];
   if (!hero) return listCoverHtml({ date, topics, countryCount, total, handle, footText });
   const co = COUNTRY[hero.cc];
   /* 미리보기 4개는 가벼운 화제 먼저 (에궁이 옆에 사건·사고가 먼저 오지 않게). 나머지는 '+N개국 더 보기'로 */
   const rest = topics.filter(t => t !== hero), ordered = [...rest.filter(isLight), ...rest.filter(t => !isLight(t))];
   const shown = ordered.slice(0, 4), more = rest.length - shown.length;
   const others = countryCount - 1;
-  /* 부제 첫 줄: 대표 화제 제목이 한 줄에 안 들어가면 '…'로 줄여요 ('소식 외'가 항상 바로 뒤에 붙게).
-     폭 계산: 한글·한자 1, 영문·숫자·기호 0.55, 띄어쓰기 0.3 (34px 기준 약 14칸까지 한 줄) */
+  /* 부제 첫 줄: 대표 화제 제목이 한 줄에 안 들어가면 '…'로 줄여요 ('때문이래요!'가 항상 바로 뒤에 붙게).
+     폭 계산: 한글·한자 1, 영문·숫자·기호 0.55, 띄어쓰기 0.3 (34px 기준 한 줄 약 14칸 - '때문이래요!' 약 2.5칸) */
   const w = ch => /\s/.test(ch) ? .3 : /[\u1100-\u11FF\u3000-\u9FFF\uAC00-\uD7AF]/.test(ch) ? 1 : .55;
   let shortTitle = hero.title;
-  if ([...hero.title].reduce((n, ch) => n + w(ch), 0) > 14.4) {
+  if ([...hero.title].reduce((n, ch) => n + w(ch), 0) > 11.9) {
     let n = 0, cut = '';
-    for (const ch of hero.title) { if (n + w(ch) > 13.4) break; n += w(ch); cut += ch; }
+    for (const ch of hero.title) { if (n + w(ch) > 10.9) break; n += w(ch); cut += ch; }
     shortTitle = cut.replace(/[\s,·\-]+$/, '') + '…';
   }
   const rows = shown.map(t => `<li><img class="flag" src="${flagSrc(t.cc)}" alt=""><div><span>${esc(COUNTRY[t.cc].ko)}${t.category_label ? ` · ${esc(t.category_label)}` : ''}</span><b>${esc(t.title)}</b></div></li>`).join('');
@@ -130,16 +131,16 @@ export function coverHtml({ date, topics, countryCount, total, handle, footText 
   <div class="pill">allearth 지구 근황</div>
   <h1>오늘 <mark>${esc(co.ko)}</mark>${iga(co.ko)}<br>들썩인 이유</h1>
   <p class="sub">${others > 0
-    ? `<span class="l1"><em>${esc(shortTitle)}</em><i>소식 외</i></span><span>${others}개국 화제를 에궁이가 모아왔어요</span>`
-    : `<span class="l1"><em>${esc(hero.title)}</em></span><span>오늘의 화제를 에궁이가 가져왔어요</span>`}</p>
+    ? `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>다른 나라 이야기도 에궁이가 챙겨왔어요</span>`
+    : `<span class="l1"><em>${esc(shortTitle)}</em><i>때문이래요!</i></span><span>에궁이가 오늘의 화제를 가져왔어요</span>`}</p>
   ${rows ? `<div class="more"><span class="lb">이런 이야기도 있어요</span><ul>${rows}</ul>${more > 0 ? `<span class="plus">+${more}개국 더 보기</span>` : ''}</div>` : ''}
   <div class="bubble">${BUBBLE}<span>지구 근황 배달 왔어!</span></div>
-  <img class="egung" src="${EGUNG}" alt="">
+  <img class="egung" src="${isLight(hero) ? EGUNG : EGUNG_SERIOUS}" alt="">
   <div class="foot"><span>${esc(footText || 'allearth가 고른 이야기')} · ${total}장</span><span class="go">넘겨서 보기<span>${ARROW}</span></span></div>
 </div>`);
 }
 
-/* 대표로 쓸 가벼운 화제가 없을 때: 예전 목록형 표지 */
+/* 화제가 하나도 없을 때를 대비한 예전 목록형 표지 */
 export function listCoverHtml({ date, topics, countryCount, total, handle, footText = '' }) {
   const dp = dateParts(date), compact = topics.length > 9;
   const tiles = topics.map((t, i) => {
