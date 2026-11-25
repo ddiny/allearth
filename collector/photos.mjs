@@ -62,6 +62,8 @@ const SCENES = [
   { re: /\b(mlb|baseball|kbo|npb|baystars|giants|tigers|dodgers|yankees)\b/i, ko: /야구|MLB|KBO|NPB|홈런|투수|타자|베이스타즈|자이언츠|타이거즈/, q: 'baseball stadium', first: true },
   { re: /\b(figure skating|skating|skater)\b/i, ko: /피겨|스케이트|빙상/, q: 'ice skating', first: true },
   { re: /\b(miss universe|miss world|pageant)\b/i, ko: /미스유니버스|미스 유니버스|미스월드|미인대회/, q: 'stage spotlight', first: true },
+  { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: 'ice hockey', first: true },
+  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: 'full moon night', first: true },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
   { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
   // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
@@ -80,7 +82,7 @@ const SCENES = [
   { re: /\b(semiconductors?|chips?|chipmaker|hbm|dram|tsmc|samsung|hynix|ai|artificial intelligence)\b/i, ko: /반도체|HBM|D램|파운드리|인공지능|(^|[^A-Za-z])AI(?![A-Za-z])/, q: 'semiconductor chip', first: true },
   { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, ko: /선거|투표|대통령|총리|장관|의회|국회|정부|정당/, q: 'parliament building', first: true },
   { re: /\b(bitcoin|crypto|ethereum)\b/i, ko: /비트코인|가상화폐|암호화폐/, q: 'cryptocurrency', first: false },
-  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: 'weather sky', first: false }
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: 'weather sky', first: true }
 ];
 const sceneOf = (en, ko) => SCENES.find(x => x.re.test(String(en || '')) || (x.ko && x.ko.test(String(ko || ''))));
 
