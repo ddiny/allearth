@@ -19,15 +19,29 @@ const STOP = new Set('the a an of and or in on at to for vs v with from as by is
 const words = s => String(s || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(w => w.length >= 4 && !STOP.has(w));
 const used = new Set(), usedAuthors = new Set();   // 같은 사진·같은 작가(비슷한 연작)를 반복하지 않게
 
+/* 지난 날짜에 쓴 사진 기록 (최근 KEEP_DAYS일). 매일 같은 사진이 나오지 않게 피해요 */
+const KEEP_DAYS = 21;
+const sceneUse = new Map();   // 같은 날 같은 장면이 여러 번 나오면 검색어를 바꿔가며
+let history = [], today = '', recentIds = new Set(), recentAuthors = new Set(), dayIndex = 0;
+export function setPhotoHistory(list, date) {
+  today = date;
+  const from = Date.parse(date) - KEEP_DAYS * 864e5;
+  /* 같은 날짜를 다시 만들 때는 그날 기록을 지우고 새로 (다시 만들 때마다 사진이 바뀌지 않게) */
+  history = (Array.isArray(list) ? list : []).filter(h => h && h.date !== date && Date.parse(h.date) >= from);
+  recentIds = new Set(history.map(h => h.id)); recentAuthors = new Set(history.map(h => h.author));
+  dayIndex = Math.floor(Date.parse(date) / 864e5); sceneUse.clear();
+}
+export const photoHistory = () => history;
+
 /* 검색 결과를 공통 모양으로: { id, width, text(설명), url, author, link } */
 async function search(query) {
   if (PIXABAY) {
-    const q = new URLSearchParams({ key: PIXABAY, q: query.slice(0, 100), image_type: 'photo', orientation: 'horizontal', safesearch: 'true', per_page: '20', min_width: '1000' });
+    const q = new URLSearchParams({ key: PIXABAY, q: query.slice(0, 100), image_type: 'photo', orientation: 'horizontal', safesearch: 'true', per_page: '50', min_width: '1000' });
     const r = await fetch(`${PIXABAY_BASE}/api/?${q}`);
     if (!r.ok) throw new Error(`Pixabay ${r.status}`);
     return ((await r.json()).hits || []).map(h => ({ id: 'pb' + h.id, width: h.imageWidth, text: h.tags, url: h.largeImageURL || h.webformatURL, author: h.user, link: h.pageURL }));
   }
-  const r = await fetch(`${PEXELS_BASE}/v1/search?${new URLSearchParams({ query, per_page: '15', orientation: 'landscape' })}`, { headers: { Authorization: PEXELS } });
+  const r = await fetch(`${PEXELS_BASE}/v1/search?${new URLSearchParams({ query, per_page: '40', orientation: 'landscape' })}`, { headers: { Authorization: PEXELS } });
   if (!r.ok) throw new Error(`Pexels ${r.status}`);
   return ((await r.json()).photos || []).map(p => ({ id: 'px' + p.id, width: p.width, text: p.alt, url: p.src.large2x || p.src.large, author: p.photographer, link: p.url }));
 }
@@ -54,35 +68,35 @@ const SCENES = [
   { re: /\b(earthquake|quake|tsunami)\b/i, ko: /지진|쓰나미|여진/, q: 'seismograph', first: true },
   { re: /\b(flood|flooding)\b/i, ko: /홍수|침수|범람/, q: 'flood water street', first: true },
   { re: /\b(wildfire|bushfire|forest fire)\b/i, ko: /산불/, q: 'forest fire smoke', first: true },
-  { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: 'tennis court', first: true },
+  { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: ['tennis court', 'tennis ball racket', 'tennis player'], first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
-  { re: /\b(nba|basketball|76ers|lakers|celtics|warriors|bucks|knicks)\b/i, ko: /농구|NBA|KBL|덩크/, q: 'basketball game', first: true },
-  { re: /\b(nfl|super bowl)\b/i, ko: /미식축구|NFL|슈퍼볼/, q: 'american football stadium', first: true },
-  { re: /\b(mlb|baseball|kbo|npb|baystars|giants|tigers|dodgers|yankees)\b/i, ko: /야구|MLB|KBO|NPB|홈런|투수|타자|베이스타즈|자이언츠|타이거즈/, q: 'baseball stadium', first: true },
+  { re: /\b(nba|basketball|76ers|lakers|celtics|warriors|bucks|knicks)\b/i, ko: /농구|NBA|KBL|덩크/, q: ['basketball game', 'basketball hoop', 'basketball court', 'basketball ball'], first: true },
+  { re: /\b(nfl|super bowl)\b/i, ko: /미식축구|NFL|슈퍼볼/, q: ['american football stadium', 'american football ball', 'american football game'], first: true },
+  { re: /\b(mlb|baseball|kbo|npb|baystars|giants|tigers|dodgers|yankees)\b/i, ko: /야구|MLB|KBO|NPB|홈런|투수|타자|베이스타즈|자이언츠|타이거즈/, q: ['baseball stadium', 'baseball glove', 'baseball bat ball', 'baseball field'], first: true },
   { re: /\b(figure skating|skating|skater)\b/i, ko: /피겨|스케이트|빙상/, q: 'ice skating', first: true },
   { re: /\b(miss universe|miss world|pageant)\b/i, ko: /미스유니버스|미스 유니버스|미스월드|미인대회/, q: 'stage spotlight', first: true },
-  { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: 'ice hockey', first: true },
-  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: 'full moon night', first: true },
+  { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: ['ice hockey', 'hockey puck', 'hockey stick', 'ice rink'], first: true },
+  { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
   { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
   // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
   { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|ligue 1|brasileir[aã]o|mls|j-?league|k-?league|champions)\b/i,
-    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: 'soccer stadium', first: true },
+    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'soccer fans', 'football pitch', 'soccer player'], first: true },
   // '드라마틱'은 드라마가 아니에요
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
-    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: 'watching tv', first: true },
-  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: 'cinema', first: true },
-  { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: 'video game controller', first: true },
-  { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: 'concert stage', first: true },
+    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'television remote', 'tv studio', 'television screen'], first: true },
+  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: ['cinema', 'movie theater seats', 'film reel', 'popcorn movie'], first: true },
+  { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: ['video game controller', 'gaming setup', 'gamer'], first: true },
+  { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: ['concert stage', 'concert crowd', 'microphone stage'], first: true },
   { re: /\b(trade|tariffs?|exports?|imports?)\b/i, ko: /무역|관세|수출|수입/, q: 'cargo containers port', first: true },
   { re: /\b(oil|gasoline|petrol|fuel)\b/i, ko: /유가|난방유|휘발유|기름값|석유/, q: 'oil barrels', first: true },
-  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: 'stock market chart', first: true },
+  { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: ['stock market chart', 'stock trading screen', 'financial chart'], first: true },
   { re: /\b(merger|acquisition|takeover)\b/i, ko: /합병|인수|매각|M&A/, q: 'business meeting', first: true },
   { re: /\b(semiconductors?|chips?|chipmaker|hbm|dram|tsmc|samsung|hynix|ai|artificial intelligence)\b/i, ko: /반도체|HBM|D램|파운드리|인공지능|(^|[^A-Za-z])AI(?![A-Za-z])/, q: 'semiconductor chip', first: true },
   { re: /\b(election|vote|president|prime minister|minister|parliament|congress|senate|government|party)\b/i, ko: /선거|투표|대통령|총리|장관|의회|국회|정부|정당/, q: 'parliament building', first: true },
   { re: /\b(bitcoin|crypto|ethereum)\b/i, ko: /비트코인|가상화폐|암호화폐/, q: 'cryptocurrency', first: false },
-  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: 'weather sky', first: true }
+  { re: /\b(storm|typhoon|hurricane|rain|snow|heat ?wave|weather)\b/i, ko: /태풍|폭우|폭설|폭염|한파|날씨|기상|계절풍|기온/, q: ['weather sky', 'rain umbrella', 'storm clouds', 'rainy window'], first: true }
 ];
 const sceneOf = (en, ko) => SCENES.find(x => x.re.test(String(en || '')) || (x.ko && x.ko.test(String(ko || ''))));
 
@@ -92,18 +106,26 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
   const cat = CATEGORY_EN[category] || '';
   const scene = sceneOf(titleEn, textKo);
   if (!scene) log(`  · 화제 종류를 몰라 제목으로 찾아요: ${JSON.stringify(String(textKo).slice(0, 60))}`);
-  const queries = [scene && scene.first ? scene.q : '', titleEn, scene && !scene.first ? scene.q : '', cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
+  /* 장면 검색어가 여러 개면: 날짜마다 시작점을 바꾸고, 같은 날 같은 장면이 또 나오면 다음 검색어로 */
+  let sq = scene ? scene.q : '';
+  if (Array.isArray(sq)) { const n = sceneUse.get(scene) || 0; sceneUse.set(scene, n + 1); sq = sq[(dayIndex + n) % sq.length]; }
+  const queries = [scene && scene.first ? sq : '', titleEn, scene && !scene.first ? sq : '', cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
     .map(q => String(q || '').trim()).filter(Boolean);
   for (const q of [...new Set(queries)]) {
     const need = words(q);
     let hits;
     try { hits = await search(q); } catch (e) { log(`  ⚠ 사진 검색 실패 (${e.message})`); return null; }
     const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && (!need.length || need.some(w => String(x.text || '').toLowerCase().includes(w))));
-    const p = ok.find(x => !usedAuthors.has(x.author)) || ok[0];
+    /* 우선순위: 최근 3주 안 쓴 사진·작가 → 안 쓴 사진 → 아무거나. 같은 조건이면 날짜마다 다른 순서로 */
+    const rot = a => a.length ? [...a.slice(dayIndex % a.length), ...a.slice(0, dayIndex % a.length)] : a;
+    const fresh = ok.filter(x => !recentIds.has(x.id));
+    const p = rot(fresh.filter(x => !usedAuthors.has(x.author) && !recentAuthors.has(x.author)))[0]
+      || rot(fresh.filter(x => !usedAuthors.has(x.author)))[0] || fresh[0] || ok.find(x => !usedAuthors.has(x.author)) || ok[0];
     if (!p) continue;
     try {
       const data = await download(p.url);
       used.add(p.id); usedAuthors.add(p.author);
+      if (today) history.push({ date: today, id: p.id, author: p.author, q });
       return { url: data, credit: `사진: ${String(p.author || photoSource()).slice(0, 40)} / ${photoSource()}`, link: p.link, query: q };
     } catch (e) { log(`  ⚠ ${e.message}`); }
   }

@@ -15,14 +15,14 @@
 //  CARDS_OUT     결과 폴더, 기본 out/cards
 //  CARDS_APP_DIR 앱 폴더, 기본 app
 // 필요한 패키지: playwright (워크플로에서 설치해요). 폰트는 앱에 들어 있는 파일을 써요.
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { appendFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { W, H, FONT_URL, COUNTRY, coverHtml, topicHtml, outroHtml, sheetHtml, dateParts } from './cards/template.mjs';
 import { loadAllEarth, APP_DIR } from './allearth.mjs';
 import { loadAth } from './ath.mjs';
-import { findPhoto, hasPhotoSource, photoSource } from './photos.mjs';
+import { findPhoto, hasPhotoSource, photoSource, setPhotoHistory, photoHistory } from './photos.mjs';
 
 const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase() === 'ath' ? 'ath' : 'allearth';
 
@@ -47,6 +47,7 @@ const PHOTOS = !/^(0|false|no|off)$/i.test(process.env.CARDS_PHOTOS || '');
 /* 화제 카드 수: 기본 8개 → 표지 + 8개국 + 마지막 장(더 많은 나라 이야기는…) = 10장 (인스타 API 한도) */
 const COUNT = Math.min(18, Math.max(1, parseInt(process.env.CARDS_COUNT || '8', 10) || 8));
 const OUT = process.env.CARDS_OUT || 'out/cards';
+const HISTORY = process.env.CARDS_PHOTO_HISTORY || `${OUT}/photo-history.json`;
 const log = (...a) => console.log(...a);
 const kstDate = iso => new Date(new Date(iso).getTime() + 9 * 3600e3).toISOString().slice(0, 10);
 
@@ -128,11 +129,17 @@ export async function main() {
   /* 사진이 없는 화제는 Pexels 무료 사진으로 채워요 */
   if (PHOTOS && hasPhotoSource()) {
     log(`사진이 없는 화제에 ${photoSource()} 무료 사진을 찾아요…`);
+    /* 지난 날짜에 쓴 사진 기록: 같은 사진이 매일 반복되지 않게 (cards-images 브랜치에 보관) */
+    let hist = [];
+    try { hist = JSON.parse(await readFile(HISTORY, 'utf8')); } catch { /* 처음이면 없음 */ }
+    setPhotoHistory(hist, date);
     for (const t of topics.filter(t => !t.image_url)) {
       const p = await findPhoto({ titleEn: t.title_en, textKo: `${t.title} ${t.short_desc}`, category: t.category_key || t.category_label, countryEn: COUNTRY[t.cc].en.toLowerCase(), log });
       if (p) { t.image_url = p.url; t.image_credit = p.credit; log(`  · ${t.cc} 사진: "${p.query}" → ${p.credit}`); }
       else log(`  · ${t.cc} 어울리는 사진을 못 찾아 국기 그래픽으로 둬요`);
     }
+    await mkdir(OUT, { recursive: true });
+    await writeFile(HISTORY, JSON.stringify(photoHistory()));
   } else if (PHOTOS && topics.some(t => !t.image_url)) log('  · 사진이 없는 화제는 국기 그래픽으로 (PIXABAY_API_KEY 를 넣으면 무료 사진을 찾아 넣어요)');
   const countries = new Set(topics.map(t => t.cc)).size;
   /* 자동 게시 한도(10장) 안에서 화제를 우선해요: 화제 9개면 마지막 장을 빼고 10장 */
