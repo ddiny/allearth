@@ -42,11 +42,13 @@ export async function loadAth({ max = 9, exclude = new Set(), log = console.log 
      같은 이야기(같은 키워드·제목)가 여러 나라에 있으면 한 번만 넣어요 — ath 앱도 같은 화제는 하나로 묶어 보여줘요 */
   const norm = v => String(v || '').replace(/\s+/g, '').toLowerCase();
   const seen = new Set(), picked = [];
+  /* 나라가 달라도 대표 기사(주소)가 같으면 같은 이야기로 봐요 (예: 같은 축구 경기를 두 나라가 검색) */
+  const topUrl = x => norm(((x.trend_news || []).slice().sort((a, b) => String(b.published_on).localeCompare(String(a.published_on)))[0] || {}).url);
   /* 뺀 나라는 고르기 전에 제외 → 빈자리는 다음 순위 나라가 채워요 */
   for (const x of [...best.values()].filter(x => !exclude.has(String(x.cc).toUpperCase())).sort((a, b) => (b.heat || 0) - (a.heat || 0))) {
-    const k1 = norm(x.keyword_id), k2 = norm(x.title);
-    if ((k1 && seen.has(k1)) || seen.has(k2)) continue;
-    if (k1) seen.add(k1); seen.add(k2);
+    const k1 = norm(x.keyword_id), k2 = norm(x.title), k3 = topUrl(x) && 'url:' + topUrl(x);
+    if ((k1 && seen.has(k1)) || seen.has(k2) || (k3 && seen.has(k3))) continue;
+    if (k1) seen.add(k1); seen.add(k2); if (k3) seen.add(k3);
     picked.push(x);
     if (picked.length >= max) break;
   }

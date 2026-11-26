@@ -68,6 +68,11 @@ const SCENES = [
   { re: /\b(earthquake|quake|tsunami)\b/i, ko: /지진|쓰나미|여진/, q: 'seismograph', first: true },
   { re: /\b(flood|flooding)\b/i, ko: /홍수|침수|범람/, q: 'flood water street', first: true },
   { re: /\b(wildfire|bushfire|forest fire)\b/i, ko: /산불/, q: 'forest fire smoke', first: true },
+  // 금·보석: 시세 기사라도 주식 차트보다 금 사진이 맞아요
+  { re: /\b(gold|jewel(le)?ry|bullion)\b/i, ko: /(?<![가-힣])금(값| ?가격|·은|은값)|귀금속|보석|(?<![가-힣])은값/, q: ['gold bars', 'gold jewelry', 'gold coins'], first: true },
+  // e스포츠: '챔피언스'·'리그' 같은 말 때문에 축구로 잘못 가지 않게 축구보다 먼저
+  { re: /\b(league of legends|lck|lpl|lec|faker|valorant|esports?|e-sports)\b|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])/i,
+    ko: /리그 ?오브 ?레전드|롤드컵|LCK|LPL|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])|페이커|발로란트|e스포츠|이스포츠|프로게이머/, q: ['esports arena', 'gaming keyboard', 'gaming setup'], first: true },
   { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: ['tennis court', 'tennis ball racket', 'tennis player'], first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
