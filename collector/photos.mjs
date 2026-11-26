@@ -74,7 +74,7 @@ const SCENES = [
   { re: /\b(league of legends|lck|lpl|lec|faker|valorant|esports?|e-sports)\b|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])/i,
     ko: /리그 ?오브 ?레전드|롤드컵|LCK|LPL|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])|페이커|발로란트|e스포츠|이스포츠|프로게이머/, q: ['esports arena', 'gaming keyboard', 'gaming setup'], first: true },
   // 독감·감기: 아픈 사람 얼굴보다 체온계·약 같은 물건으로
-  { re: /\b(flu|influenza|cold season|vaccine|vaccination)\b/i, ko: /독감|감기|인플루엔자|호흡기 ?질환|백신|예방접종/, q: ['thermometer', 'medicine pills', 'vaccine syringe'], first: true },
+  { re: /\b(flu|influenza|cold season|vaccine|vaccination)\b/i, ko: /독감|감기|인플루엔자|호흡기 ?질환|백신|예방접종/, q: ['thermometer', 'medicine pills', 'vaccine syringe'], first: true, not: /child|baby|kid|boy|girl|person|people|man|woman|patient|face/ },
   { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: ['tennis court', 'tennis ball racket', 'tennis player'], first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
@@ -95,7 +95,7 @@ const SCENES = [
   // '드라마틱'은 드라마가 아니에요
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
     ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'television remote', 'tv studio', 'television screen'], first: true },
-  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: ['cinema', 'movie theater seats', 'film reel', 'popcorn movie'], first: true },
+  { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: ['cinema', 'movie theater seats', 'film reel', 'popcorn movie'], first: true, not: /vpn|laptop|computer|netflix|streaming/ },
   { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: ['video game controller', 'gaming setup', 'gamer'], first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: ['concert stage', 'concert crowd', 'microphone stage'], first: true },
   { re: /\b(trade|tariffs?|exports?|imports?)\b/i, ko: /무역|관세|수출|수입/, q: 'cargo containers port', first: true },
@@ -126,10 +126,12 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
     try { hits = await search(q); } catch (e) { log(`  ⚠ 사진 검색 실패 (${e.message})`); return null; }
     /* not: 그 장면에 어울리지 않는 사진 태그 (예: 슈퍼문인데 월식의 붉은 달) */
     const bad = scene && scene.not;
+    /* 모든 장면 공통: 실사 사진만 (그림·만화·벡터는 빼요) */
+    const drawn = /illustration|vector|cartoon|clipart|clip art|drawing|graphic|3d render|ai generated/;
     /* 장면 검색어는 단어가 모두 태그에 있어야 해요 (예: 'boxing ring' → 결혼반지 'ring'만 있는 사진은 빼요). 제목 검색은 하나만 맞아도 돼요 */
     const tags = x => String(x.text || '').toLowerCase();
     const match = x => !need.length || (q === sq ? need.every(w => tags(x).includes(w)) : need.some(w => tags(x).includes(w)));
-    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && match(x) && !(bad && bad.test(String(x.text || ''))));
+    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && match(x) && !(bad && bad.test(String(x.text || ''))) && !drawn.test(tags(x)));
     /* 우선순위: 최근 3주 안 쓴 사진·작가 → 안 쓴 사진 → 아무거나. 같은 조건이면 날짜마다 다른 순서로 */
     const rot = a => a.length ? [...a.slice(dayIndex % a.length), ...a.slice(0, dayIndex % a.length)] : a;
     const fresh = ok.filter(x => !recentIds.has(x.id));
