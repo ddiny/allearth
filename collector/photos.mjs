@@ -73,6 +73,8 @@ const SCENES = [
   // e스포츠: '챔피언스'·'리그' 같은 말 때문에 축구로 잘못 가지 않게 축구보다 먼저
   { re: /\b(league of legends|lck|lpl|lec|faker|valorant|esports?|e-sports)\b|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])/i,
     ko: /리그 ?오브 ?레전드|롤드컵|LCK|LPL|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])|페이커|발로란트|e스포츠|이스포츠|프로게이머/, q: ['esports arena', 'gaming keyboard', 'gaming setup'], first: true },
+  // 독감·감기: 아픈 사람 얼굴보다 체온계·약 같은 물건으로
+  { re: /\b(flu|influenza|cold season|vaccine|vaccination)\b/i, ko: /독감|감기|인플루엔자|호흡기 ?질환|백신|예방접종/, q: ['thermometer', 'medicine pills', 'vaccine syringe'], first: true },
   { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: ['tennis court', 'tennis ball racket', 'tennis player'], first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
@@ -84,7 +86,7 @@ const SCENES = [
   { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: ['ice hockey', 'hockey puck', 'hockey stick', 'ice rink'], first: true },
   { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true, not: /eclipse|blood|red moon|orange/, focus: 'bright' },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
-  { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: 'boxing ring', first: true },
+  { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: ['boxing gloves', 'boxing ring', 'punching bag'], first: true },
   // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
   { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|ligue 1|brasileir[aã]o|mls|j-?league|k-?league|champions)\b/i,
     ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'football pitch', 'soccer cleats', 'stadium lights'], first: true },
@@ -124,7 +126,10 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
     try { hits = await search(q); } catch (e) { log(`  ⚠ 사진 검색 실패 (${e.message})`); return null; }
     /* not: 그 장면에 어울리지 않는 사진 태그 (예: 슈퍼문인데 월식의 붉은 달) */
     const bad = scene && scene.not;
-    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && (!need.length || need.some(w => String(x.text || '').toLowerCase().includes(w))) && !(bad && bad.test(String(x.text || ''))));
+    /* 장면 검색어는 단어가 모두 태그에 있어야 해요 (예: 'boxing ring' → 결혼반지 'ring'만 있는 사진은 빼요). 제목 검색은 하나만 맞아도 돼요 */
+    const tags = x => String(x.text || '').toLowerCase();
+    const match = x => !need.length || (q === sq ? need.every(w => tags(x).includes(w)) : need.some(w => tags(x).includes(w)));
+    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && match(x) && !(bad && bad.test(String(x.text || ''))));
     /* 우선순위: 최근 3주 안 쓴 사진·작가 → 안 쓴 사진 → 아무거나. 같은 조건이면 날짜마다 다른 순서로 */
     const rot = a => a.length ? [...a.slice(dayIndex % a.length), ...a.slice(0, dayIndex % a.length)] : a;
     const fresh = ok.filter(x => !recentIds.has(x.id));
