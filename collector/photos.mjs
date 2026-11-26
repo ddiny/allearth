@@ -131,7 +131,7 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
     /* 장면 검색어는 단어가 모두 태그에 있어야 해요 (예: 'boxing ring' → 결혼반지 'ring'만 있는 사진은 빼요). 제목 검색은 하나만 맞아도 돼요 */
     const tags = x => String(x.text || '').toLowerCase();
     const match = x => !need.length || (q === sq ? need.every(w => tags(x).includes(w)) : need.some(w => tags(x).includes(w)));
-    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && match(x) && !(bad && bad.test(String(x.text || ''))) && !drawn.test(tags(x)));
+    const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && match(x) && !(bad && bad.test(String(x.text || ''))) && !drawn.test(tags(x)) && !/\.png(\?|$)/i.test(String(x.url || '')));   // 배경 없는 PNG는 대개 그림이에요
     /* 우선순위: 최근 3주 안 쓴 사진·작가 → 안 쓴 사진 → 아무거나. 같은 조건이면 날짜마다 다른 순서로 */
     const rot = a => a.length ? [...a.slice(dayIndex % a.length), ...a.slice(0, dayIndex % a.length)] : a;
     const fresh = ok.filter(x => !recentIds.has(x.id));
