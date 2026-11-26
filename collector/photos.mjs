@@ -86,10 +86,10 @@ const SCENES = [
   { re: /\b(nhl|hockey|canadiens|maple leafs|oilers|bruins)\b/i, ko: /하키|NHL|캐나디언스|메이플리프스/, q: ['ice hockey', 'hockey puck', 'hockey stick', 'ice rink'], first: true },
   { re: /\b(supermoon|full moon|moon|eclipse|meteor|aurora)\b/i, ko: /슈퍼문|보름달|월식|일식|유성우|오로라|천문/, q: ['full moon night', 'moon sky', 'supermoon'], first: true, not: /eclipse|blood|red moon|orange/, focus: 'bright' },
   { re: /\b(golf|pga|lpga)\b/i, ko: /골프|PGA|LPGA/, q: 'golf course', first: true },
-  { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: ['boxing gloves', 'boxing ring', 'punching bag'], first: true },
+  { re: /\b(boxing|ufc|mma)\b/i, ko: /복싱|UFC|격투/, q: ['boxing gloves', 'boxing ring'], first: true },
   // 'final' 하나만으로는 축구로 보지 않아요 (예: 방송인의 'Final' 방송)
   { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|ligue 1|brasileir[aã]o|mls|j-?league|k-?league|champions)\b/i,
-    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'football pitch', 'soccer cleats', 'stadium lights'], first: true },
+    ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'football pitch', 'soccer cleats'], first: true },
   // 대담·토크쇼는 일반 방송(TV 화면)보다 먼저: 사람들이 마주 앉아 이야기하는 장면
   { re: /\b(talk show|chat show|interview show|late night)\b/i, ko: /대담|토크쇼|토크 쇼|인터뷰 프로그램|좌담/, q: ['talk show', 'interview studio', 'podcast studio'], first: true },
   // '드라마틱'은 드라마가 아니에요
