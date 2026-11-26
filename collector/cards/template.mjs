@@ -188,11 +188,14 @@ export function topicHtml(t, { index, total, handle }) {
 export function outroHtml({ topics, total, handle }) {
   const acts = [['save', '저장'], ['share', '공유'], ['follow', '팔로우']]
     .map(([k, a]) => `<li><span>${ICON[k]}</span><b>${a}</b></li>`).join('');
+  /* 에궁이 뒤 배경: 오늘 나라 국기를 흐리게 흩뿌려요 (나라가 적으면 반복해서 10자리 채움) */
+  const ccs = topics.map(t => t.cc).filter(cc => COUNTRY[cc]);
+  const bgFlags = ccs.length ? Array.from({ length: 10 }, (_, i) => `<img src="${flagSrc(ccs[i % ccs.length])}" alt="">`).join('') : '';
   return page(`<div class="card s-outro">
   <div class="top">${LOGO}<span class="count mono">${pad(total)} / ${pad(total)}</span></div>
   <h2>더 많은 나라 이야기는<br><mark class="brand-mark">allearth</mark>에서 만나요</h2>
   <p class="sub">프로필 링크에서 지구 한 바퀴 돌아보세요.</p>
-  <div class="mascot"><div class="fig"><img src="${EGUNG_OUTRO}" alt=""><div class="bubble">${BUBBLE}<span>또 올게!</span></div></div></div>
+  <div class="mascot">${bgFlags ? `<div class="flag-bg" aria-hidden="true">${bgFlags}</div>` : ''}<div class="fig"><img src="${EGUNG_OUTRO}" alt=""><div class="bubble">${BUBBLE}<span>또 올게!</span></div></div></div>
   <p class="ask">오늘의 지구 이야기가 재미있었다면?</p>
   <ul class="acts">${acts}</ul>
   <p class="note">이야기와 일정은 각 공식 출처에서 확인했어요. 이미지 출처는 각 장에 적었어요.</p>
