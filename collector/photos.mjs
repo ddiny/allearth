@@ -99,7 +99,7 @@ const SCENES = [
   { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: ['video game controller', 'gaming setup', 'gamer'], first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: ['concert stage', 'concert crowd', 'microphone stage'], first: true },
   { re: /\b(trade|tariffs?|exports?|imports?)\b/i, ko: /무역|관세|수출|수입/, q: 'cargo containers port', first: true },
-  { re: /\b(oil|gasoline|petrol|fuel)\b/i, ko: /유가|난방유|휘발유|기름값|석유/, q: 'oil barrels', first: true },
+  { re: /\b(oil|gasoline|petrol|fuel)\b/i, ko: /유가|난방유|휘발유|기름값|석유/, q: ['gas station', 'fuel pump', 'gas pump nozzle'], first: true, not: /wine|whisk|beer|winery|cellar/ },
   { re: /\b(stock|stocks|shares|earnings|nasdaq|dow|index|rally|plunge|surge|ipo)\b/i, ko: /주가|증시|주식|실적|나스닥|상장|급락|급등/, q: ['stock market chart', 'stock trading screen', 'financial chart'], first: true },
   { re: /\b(merger|acquisition|takeover)\b/i, ko: /합병|인수|매각|M&A/, q: 'business meeting', first: true },
   { re: /\b(semiconductors?|chips?|chipmaker|hbm|dram|tsmc|samsung|hynix|ai|artificial intelligence)\b/i, ko: /반도체|HBM|D램|파운드리|인공지능|(^|[^A-Za-z])AI(?![A-Za-z])/, q: 'semiconductor chip', first: true },
