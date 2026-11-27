@@ -75,6 +75,8 @@ const SCENES = [
     ko: /리그 ?오브 ?레전드|롤드컵|LCK|LPL|(^|[^A-Za-z0-9])T1(?![A-Za-z0-9])|페이커|발로란트|e스포츠|이스포츠|프로게이머/, q: ['esports arena', 'gaming keyboard', 'gaming setup'], first: true },
   // 독감·감기: 아픈 사람 얼굴보다 체온계·약 같은 물건으로
   { re: /\b(flu|influenza|cold season|vaccine|vaccination)\b/i, ko: /독감|감기|인플루엔자|호흡기 ?질환|백신|예방접종/, q: ['thermometer', 'medicine pills', 'vaccine syringe'], first: true, not: /child|baby|kid|boy|girl|person|people|man|woman|patient|face/ },
+  // 크리켓: 'Test 경기'·'match' 때문에 축구로 가지 않게 축구보다 먼저
+  { re: /\b(cricket|ipl|test match|odi|t20)\b/i, ko: /크리켓|테스트 ?경기|IPL/, q: ['cricket ball', 'cricket bat', 'cricket stadium'], first: true },
   { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: ['tennis court', 'tennis ball racket', 'tennis player'], first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
