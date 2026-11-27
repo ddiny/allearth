@@ -14,7 +14,8 @@
 //  CARDS_HANDLE  카드 아래 인스타 계정 이름 (예: @glb.gummi). 비우면 로고
 //  CARDS_OUT     결과 폴더, 기본 out/cards
 //  CARDS_APP_DIR 앱 폴더, 기본 app
-// 필요한 패키지: playwright (워크플로에서 설치해요). 폰트는 앱에 들어 있는 파일을 써요.
+//  CARDS_REELS   0 이면 릴스 영상(reel.mp4)을 만들지 않아요. REELS_COUNT(기본 5)·REELS_SECONDS(기본 3) — collector/reels.mjs
+// 필요한 패키지: playwright (워크플로에서 설치해요), 릴스용 ffmpeg. 폰트는 앱에 들어 있는 파일을 써요.
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { appendFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -22,6 +23,7 @@ import { chromium } from 'playwright';
 import { W, H, FONT_URL, COUNTRY, coverHtml, topicHtml, outroHtml, sheetHtml, dateParts } from './cards/template.mjs';
 import { loadAllEarth, APP_DIR } from './allearth.mjs';
 import { loadAth } from './ath.mjs';
+import { makeReel } from './reels.mjs';
 import { findPhoto, hasPhotoSource, photoSource, setPhotoHistory, photoHistory } from './photos.mjs';
 
 const SOURCE = (process.env.CARDS_SOURCE || 'allearth').toLowerCase() === 'ath' ? 'ath' : 'allearth';
@@ -44,6 +46,8 @@ function hashtags(topics) {
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));
 const PHOTOS = !/^(0|false|no|off)$/i.test(process.env.CARDS_PHOTOS || '');
+/* 릴스 영상(reel.mp4)도 같이 만들기. CARDS_REELS=0 이면 끔 */
+const REELS = !/^(0|false|no|off)$/i.test(process.env.CARDS_REELS || '');
 /* 화제 카드 수: 기본 8개 → 표지 + 8개국 + 마지막 장(더 많은 나라 이야기는…) = 10장 (인스타 API 한도) */
 const COUNT = Math.min(18, Math.max(1, parseInt(process.env.CARDS_COUNT || '8', 10) || 8));
 const OUT = process.env.CARDS_OUT || 'out/cards';
@@ -191,6 +195,14 @@ export async function main() {
   await writeFile(`${dir}/caption.txt`, cap + '\n');
   await writeFile(`${dir}/cards.json`, JSON.stringify({ date, countries, slides: files.map(f => f.name), topics: topics.map(t => ({ cc: t.cc, title: t.title, source: t.source_url, photo: t.photoShown ? t.image_credit : null })) }, null, 1));
 
+  /* 릴스 영상: 실패해도 카드는 그대로 써요 */
+  let reel = null;
+  if (REELS) {
+    log('\n릴스 영상을 만들어요…');
+    try { reel = await makeReel({ date, topics, dir, font, log }); }
+    catch (e) { warn.push(`릴스 영상을 만들지 못했어요: ${e && e.message || e}`); log(`  ⚠ 릴스: ${e && e.message || e}`); }
+  }
+
   /* 앱 화제 날짜가 지났으면 알려줘요 (요약에 '오늘'·'내일' 같은 말이 있어 늦게 올리면 틀린 말이 돼요) */
   const age = Math.round((Date.parse(kstDate(new Date().toISOString())) - Date.parse(date)) / 864e5);
   if (age >= 1 && SOURCE !== 'ath') { warn.unshift(`앱 화제 날짜가 ${date}로 ${age}일 지났어요. 요약의 '오늘'·'내일' 같은 표현이 지금과 맞지 않을 수 있어요. topics.js 를 새로 고친 뒤 올리는 걸 추천해요.`); log(`  ⚠ 화제 날짜 ${date} · ${age}일 지남`); }
@@ -198,6 +210,7 @@ export async function main() {
 
   const summary = `## 카드뉴스 (${date} · ${SOURCE === 'ath' ? 'ath 앱 실시간 화제' : 'AllEarth 앱 화제'})\n${countries}개국 ${topics.length}개 화제, 카드 ${total}장\n\n` +
     topics.map((t, i) => `${i + 2}. **${COUNTRY[t.cc].ko}** ${t.title}`).join('\n') +
+    (reel ? `\n\n릴스 영상: reel.mp4 (${reel.topics}개 화제 · ${reel.seconds.toFixed(0)}초, 소리 없음 — 올릴 때 인스타 앱에서 음악을 골라 주세요)` : '') +
     (warn.length ? `\n\n확인 필요:\n${warn.map(w => '- ' + w).join('\n')}` : '') + '\n';
   log('\n' + cap);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
