@@ -36,7 +36,7 @@ concurrency:
 jobs:
   cards:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,6 +45,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.63.0
           npx playwright install --with-deps chromium
+      - name: 영상 도구 준비 (릴스용 ffmpeg)
+        run: command -v ffmpeg || { sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; }
       - name: 지난 사진 기록 가져오기 (같은 사진이 매일 반복되지 않게)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -97,6 +99,7 @@ jobs:
           {
             echo "### 미리보기"
             echo "![카드 미리보기]($RAW/preview.jpg)"
+            if [ -f "$DATE/reel.mp4" ]; then echo; echo "릴스 영상: [reel.mp4 내려받기]($RAW/reel.mp4) (소리 없음 · 인스타 앱에서 음악을 골라 올려 주세요)"; fi
             echo
             echo "괜찮으면 [인스타에 올리기](https://github.com/${GITHUB_REPOSITORY}/actions/workflows/publish.yml) → **Run workflow** 를 누르세요."
             echo "미리보기가 안 보이면 저장소가 공개(Public)인지 확인해 주세요."
