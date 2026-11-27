@@ -112,12 +112,22 @@ ${egung({ cls: 't-eg', src: heavy ? EG.serious : EG.smile, enter: 'up .5s .5s bo
 <div class="dots">${topics.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>`)]);
   });
 
+  /* 마지막 장: 카드뉴스 마지막 장처럼 에궁이 뒤에 오늘 나라 국기를 흐리게 (나라가 적으면 반복해서 10자리) */
+  const bgFlags = Array.from({ length: 10 }, (_, i) => `<img src="${flagSrc(topics[i % topics.length].cc)}" alt="">`).join('');
   scenes.push(['outro', 3.0, page(`${TOP}
 <h2 class="a" style="position:absolute;left:0;right:0;top:330px;text-align:center;font-size:64px;font-weight:900;line-height:1.3;letter-spacing:-.04em;animation:up .5s .1s both">더 많은 나라 이야기는<br><mark style="animation:hl .4s .7s both">allearth</mark>에서 만나요</h2>
 <p class="a" style="position:absolute;left:0;right:0;top:530px;text-align:center;font-size:34px;color:var(--mute);animation:up .5s .3s both">프로필 링크에서 지구 한 바퀴 돌아보세요</p>
+<div class="fbg a" style="animation:up .6s .4s both">${bgFlags}</div>
 ${egung({ cls: 'o-eg', src: EG.outro, enter: 'hopin .9s .2s both', move: 'wave 1.6s 1.1s 2 ease-in-out' })}
-<div class="bubble a" style="left:610px;top:640px;animation:pop .45s 1.0s both;transform-origin:70% 100%">${BUB(true)}<span>내일도 배달 올게!</span></div>`,
-  '.o-eg{left:250px;top:740px;width:560px;height:874px}')]);
+<div class="bubble a" style="left:610px;top:640px;animation:pop .45s 1.0s both;transform-origin:70% 100%">${BUB(true)}<span>또 올게!</span></div>`,
+  '.o-eg{left:250px;top:740px;width:560px;height:874px}' +
+  '.fbg{position:absolute;left:0;right:0;top:700px;height:980px}' +
+  '.fbg img{position:absolute;width:150px;height:112px;object-fit:cover;border-radius:16px;filter:blur(8px);opacity:.55}' +
+  '.fbg img:nth-child(1){left:60px;top:40px;transform:rotate(-12deg)}.fbg img:nth-child(2){left:190px;top:250px;transform:rotate(8deg) scale(.8)}' +
+  '.fbg img:nth-child(3){left:50px;top:470px;transform:rotate(6deg) scale(1.1)}.fbg img:nth-child(4){left:200px;top:700px;transform:rotate(-8deg) scale(.85)}' +
+  '.fbg img:nth-child(5){left:360px;top:0;transform:rotate(10deg) scale(.7)}.fbg img:nth-child(6){right:60px;top:330px;transform:rotate(-10deg) scale(1.05)}' +
+  '.fbg img:nth-child(7){right:190px;top:560px;transform:rotate(12deg) scale(.8)}.fbg img:nth-child(8){right:50px;top:780px;transform:rotate(-5deg) scale(.95)}' +
+  '.fbg img:nth-child(9){left:620px;top:860px;transform:rotate(7deg) scale(.7)}.fbg img:nth-child(10){right:230px;top:120px;transform:rotate(-6deg) scale(.75)}')]);
   return scenes;
 }
 
