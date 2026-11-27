@@ -100,7 +100,7 @@ const SCENES = [
   { re: /\b(talk show|chat show|interview show|late night)\b/i, ko: /대담|토크쇼|토크 쇼|톡쇼|인터뷰 프로그램|좌담/, q: ['talk show', 'interview studio', 'podcast studio'], first: true },
   // '드라마틱'은 드라마가 아니에요
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
-    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'television remote', 'tv studio', 'television screen'], first: true, not: /sad|stress|angry|frustrat|depress|headache|crying|worried/ },
+    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'tv studio', 'television screen'], first: true, not: /sad|stress|angry|frustrat|depress|headache|crying|worried/ },
   { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: ['cinema', 'movie theater seats', 'film reel', 'popcorn movie'], first: true, not: /vpn|laptop|computer|netflix|streaming/ },
   { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: ['video game controller', 'gaming setup', 'gamer'], first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: ['concert stage', 'concert crowd', 'microphone stage'], first: true },
@@ -122,9 +122,11 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
   const scene = sceneOf(titleEn, textKo);
   if (!scene) log(`  · 화제 종류를 몰라 제목으로 찾아요: ${JSON.stringify(String(textKo).slice(0, 60))}`);
   /* 장면 검색어가 여러 개면: 날짜마다 시작점을 바꾸고, 같은 날 같은 장면이 또 나오면 다음 검색어로 */
-  let sq = scene ? scene.q : '';
-  if (Array.isArray(sq)) { const n = sceneUse.get(scene) || 0; sceneUse.set(scene, n + 1); sq = sq[(dayIndex + n) % sq.length]; }
-  const queries = [scene && scene.first ? sq : '', titleEn, scene && !scene.first ? sq : '', cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
+  /* 장면을 알면: 고른 검색어 → 같은 장면의 나머지 검색어를 모두 먼저 (제목 검색은 엉뚱한 사진이 잘 나와요. 예: 'Talk Show' → 돌고래 쇼) */
+  let sqs = scene ? (Array.isArray(scene.q) ? scene.q : [scene.q]) : [];
+  if (sqs.length > 1) { const n = sceneUse.get(scene) || 0; sceneUse.set(scene, n + 1); const k = (dayIndex + n) % sqs.length; sqs = [...sqs.slice(k), ...sqs.slice(0, k)]; }
+  const sceneQs = new Set(sqs);
+  const queries = [...(scene && scene.first ? sqs : []), titleEn, ...(scene && !scene.first ? sqs : []), cat && countryEn ? `${cat} ${countryEn}` : '', countryEn ? `${countryEn} city` : '']
     .map(q => String(q || '').trim()).filter(Boolean);
   for (const q of [...new Set(queries)]) {
     const need = words(q);
@@ -136,7 +138,7 @@ export async function findPhoto({ titleEn, textKo = '', category, countryEn, log
     const drawn = /illustration|vector|cartoon|clipart|clip art|drawing|graphic|3d render|ai generated/;
     /* 장면 검색어는 단어가 모두 태그에 있어야 해요 (예: 'boxing ring' → 결혼반지 'ring'만 있는 사진은 빼요). 제목 검색은 하나만 맞아도 돼요 */
     const tags = x => String(x.text || '').toLowerCase();
-    const match = x => !need.length || (q === sq ? need.every(w => tags(x).includes(w)) : need.some(w => tags(x).includes(w)));
+    const match = x => !need.length || (sceneQs.has(q) ? need.every(w => tags(x).includes(w)) : need.some(w => tags(x).includes(w)));
     const ok = hits.filter(x => !used.has(x.id) && x.width >= 1000 && match(x) && !(bad && bad.test(String(x.text || ''))) && !drawn.test(tags(x)) && !/\.png(\?|$)/i.test(String(x.url || '')));   // 배경 없는 PNG는 대개 그림이에요
     /* 우선순위: 최근 3주 안 쓴 사진·작가 → 안 쓴 사진 → 아무거나. 같은 조건이면 날짜마다 다른 순서로 */
     const rot = a => a.length ? [...a.slice(dayIndex % a.length), ...a.slice(0, dayIndex % a.length)] : a;
