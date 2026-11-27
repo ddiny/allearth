@@ -51,22 +51,23 @@ mark{background:linear-gradient(transparent 55%,var(--accent) 55%,var(--accent) 
 @keyframes hopin{0%{opacity:0;transform:translateY(420px)}45%{opacity:1;transform:translateY(-40px) scale(.94,1.06)}62%{transform:translateY(0) scale(1.08,.92)}78%{transform:translateY(-12px) scale(.98,1.02)}100%{opacity:1;transform:none}}
 @keyframes idle{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-10px) rotate(-1.6deg)}50%{transform:translateY(0) scale(1.02,.98)}75%{transform:translateY(-10px) rotate(1.6deg)}}
 @keyframes hop{0%,100%{transform:translateY(0) scale(1)}20%{transform:translateY(0) scale(1.08,.9)}45%{transform:translateY(-46px) scale(.95,1.06)}70%{transform:translateY(0) scale(1.06,.94)}85%{transform:translateY(-6px)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-12px) rotate(-2deg)}60%{transform:translateY(-4px) rotate(1.5deg)}}
 @keyframes wave{0%,100%{transform:rotate(0)}20%{transform:rotate(-5deg)}40%{transform:rotate(5deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(3deg)}}
 .a{animation-fill-mode:both;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
 /* 화제 장면 */
-.art{position:absolute;left:80px;right:80px;top:390px;height:620px;border-radius:36px;overflow:hidden;box-shadow:0 0 0 2px var(--line);background:#ddd}
+.art{position:absolute;left:80px;right:80px;top:390px;height:740px;border-radius:36px;overflow:hidden;box-shadow:0 0 0 2px var(--line);background:#ddd}
 .pz{position:absolute;inset:0}.pz svg{width:100%;height:100%;display:block}
 .pz img{width:100%;height:100%;object-fit:cover;display:block}
 .stk{position:absolute;left:50%;top:50%;width:400px;height:280px;margin:-140px 0 0 -200px;object-fit:cover;border:10px solid #fff;border-radius:14px;box-shadow:0 20px 40px rgba(0,0,0,.25)}
 .badge{position:absolute;right:36px;top:36px;width:150px;height:150px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font:700 34px Pop,P;transform:rotate(-8deg)}
 .chip{position:absolute;left:36px;bottom:36px;background:#fff;border-radius:30px;padding:10px 24px;font-size:30px;font-weight:700}
-.credit{position:absolute;left:80px;right:140px;top:1020px;font-size:20px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.body{position:absolute;left:80px;right:140px;top:1070px}
+.credit{position:absolute;left:80px;right:140px;top:1142px;font-size:20px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.body{position:absolute;left:80px;right:140px;top:1192px}
 .co{display:flex;align-items:center;gap:16px}.co img{width:64px;height:46px;border-radius:8px;object-fit:cover;box-shadow:0 0 0 2px var(--line)}.co b{font-size:46px;font-weight:900}
 .body h2{margin-top:20px;font-size:74px;font-weight:900;line-height:1.22;letter-spacing:-.045em}
 .body p{margin-top:26px;font-size:34px;font-weight:500;line-height:1.55;max-width:600px}
-.t-eg{right:110px;top:1270px;width:260px;height:354px}
-.dots{position:absolute;left:80px;top:1530px;display:flex;gap:12px}
+.t-eg{right:110px;top:1360px;width:260px;height:354px}
+.dots{position:absolute;left:80px;top:1680px;display:flex;gap:12px}
 .dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--ink);width:40px;border-radius:8px}
 `;
 const page = (body, css = '') => `<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>${CSS}${css}</style></head><body>${body}</body></html>`;
@@ -86,7 +87,7 @@ export function reelScenes({ date, topics, seconds = 3 }) {
  <span class="a" style="display:block;animation:up .55s .25s both">오늘 <mark style="animation:hl .4s .8s both">${esc(co.ko)}</mark>${iga(co.ko)}</span>
  <span class="a" style="display:block;animation:up .55s .4s both">들썩인 이유</span></h1>
 ${egung({ cls: 'c-eg', src: !light ? EG.serious : anyHeavy ? EG.calm : EG.smile, enter: 'hopin .9s .3s both', move: light ? 'idle 2.4s 1.2s infinite ease-in-out' : 'none' })}
-<div class="bubble a" style="right:70px;top:620px;animation:pop .45s 1.2s both;transform-origin:30% 100%">${BUB()}<span>${say}</span></div>`,
+<div class="bubble a" style="right:70px;top:620px;animation:pop .45s 1.2s both,bob 1.8s 1.7s infinite ease-in-out;transform-origin:30% 100%">${BUB()}<span>${say}</span></div>`,
   '.c-eg{left:100px;top:680px;width:880px;height:1198px}')]];
 
   topics.forEach((t, i) => {
@@ -114,12 +115,12 @@ ${egung({ cls: 't-eg', src: heavy ? EG.serious : EG.smile, enter: 'up .5s .5s bo
 
   /* 마지막 장: 카드뉴스 마지막 장처럼 에궁이 뒤에 오늘 나라 국기를 흐리게 (나라가 적으면 반복해서 10자리) */
   const bgFlags = Array.from({ length: 10 }, (_, i) => `<img src="${flagSrc(topics[i % topics.length].cc)}" alt="">`).join('');
-  scenes.push(['outro', 3.0, page(`${TOP}
+  scenes.push(['outro', 5.0, page(`${TOP}
 <h2 class="a" style="position:absolute;left:0;right:0;top:330px;text-align:center;font-size:64px;font-weight:900;line-height:1.3;letter-spacing:-.04em;animation:up .5s .1s both">더 많은 나라 이야기는<br><mark style="animation:hl .4s .7s both">allearth</mark>에서 만나요</h2>
 <p class="a" style="position:absolute;left:0;right:0;top:530px;text-align:center;font-size:34px;color:var(--mute);animation:up .5s .3s both">프로필 링크에서 지구 한 바퀴 돌아보세요</p>
 <div class="fbg a" style="animation:up .6s .4s both">${bgFlags}</div>
-${egung({ cls: 'o-eg', src: EG.outro, enter: 'hopin .9s .2s both', move: 'wave 1.6s 1.1s 2 ease-in-out' })}
-<div class="bubble a" style="left:680px;top:575px;animation:pop .45s 1.0s both;transform-origin:30% 100%">${BUB()}<span>또 올게!</span></div>`,
+${egung({ cls: 'o-eg', src: EG.outro, enter: 'hopin .9s .2s both', move: 'wave 1.6s 1.1s infinite ease-in-out' })}
+<div class="bubble a" style="left:680px;top:575px;animation:pop .45s 1.0s both,bob 1.6s 1.5s infinite ease-in-out;transform-origin:30% 100%">${BUB()}<span>또 올게!</span></div>`,
   '.o-eg{left:250px;top:740px;width:560px;height:874px}' +
   '.fbg{position:absolute;left:0;right:0;top:700px;height:980px}' +
   '.fbg img{position:absolute;width:150px;height:112px;object-fit:cover;border-radius:16px;filter:blur(8px);opacity:.55}' +
