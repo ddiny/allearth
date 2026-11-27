@@ -77,6 +77,10 @@ const SCENES = [
   { re: /\b(flu|influenza|cold season|vaccine|vaccination)\b/i, ko: /독감|감기|인플루엔자|호흡기 ?질환|백신|예방접종/, q: ['thermometer', 'medicine pills', 'vaccine syringe'], first: true, not: /child|baby|kid|boy|girl|person|people|man|woman|patient|face/ },
   // 크리켓: 'Test 경기'·'match' 때문에 축구로 가지 않게 축구보다 먼저
   { re: /\b(cricket|ipl|test match|odi|t20)\b/i, ko: /크리켓|테스트 ?경기|IPL/, q: ['cricket ball', 'cricket bat', 'cricket stadium'], first: true },
+  // 선거: 국회의사당 사진은 다른 나라 건물이 나오기 쉬워서 투표함으로
+  { re: /\b(election|vote|voting|poll|polls|ballot)\b/i, ko: /선거|총선|대선|투표|여론조사/, q: ['ballot box', 'voting ballot'], first: true },
+  // 쇼핑·할인: 블랙프라이데이 등
+  { re: /\b(black friday|cyber monday|sale|sales|shopping|discount)\b/i, ko: /블랙 ?프라이데이|사이버 ?먼데이|세일|쇼핑|할인 ?행사/, q: ['shopping bags', 'shopping mall', 'sale sign'], first: true, not: /cross|church|religio|jesus|christ/ },
   { re: /\b(tennis|atp|wta|wimbledon)\b/i, ko: /테니스|윔블던|US오픈|호주오픈/, q: ['tennis court', 'tennis ball racket', 'tennis player'], first: true },
   { re: /\b(f1|formula ?1|grand prix|motogp|nascar)\b/i, ko: /(^|[^A-Za-z0-9])F1(?![A-Za-z0-9])|포뮬러|그랑프리|모터스포츠/, q: 'race car track', first: true },
   { re: /\b(marathon)\b/i, ko: /마라톤/, q: 'marathon runners', first: true },
@@ -93,10 +97,10 @@ const SCENES = [
   { re: /\b(vs|v|league|cup|match|friendly|friendlies|finals|quarter-?finals?|semi-?finals?|beats?|defeats?|derby|derbi|clasico|qualifier|world cup|euro|soccer|football|fc|squad|coach|striker|goal|premier|la liga|serie a|bundesliga|ligue 1|brasileir[aã]o|mls|j-?league|k-?league|champions)\b/i,
     ko: /축구|리그|라리가|세리에|분데스리가|프리미어|챔피언스|더비|월드컵|A매치|친선경기|국가대표|감독|득점|골키퍼|브라질리앙|시리즈 ?A|MLS|K리그|J리그/, q: ['soccer stadium', 'soccer ball grass', 'soccer goal net', 'football pitch', 'soccer cleats'], first: true },
   // 대담·토크쇼는 일반 방송(TV 화면)보다 먼저: 사람들이 마주 앉아 이야기하는 장면
-  { re: /\b(talk show|chat show|interview show|late night)\b/i, ko: /대담|토크쇼|토크 쇼|인터뷰 프로그램|좌담/, q: ['talk show', 'interview studio', 'podcast studio'], first: true },
+  { re: /\b(talk show|chat show|interview show|late night)\b/i, ko: /대담|토크쇼|토크 쇼|톡쇼|인터뷰 프로그램|좌담/, q: ['talk show', 'interview studio', 'podcast studio'], first: true },
   // '드라마틱'은 드라마가 아니에요
   { re: /\b(drama|series|season finale|finale|episode|sitcom|tv show|tv|telenovela|dizi|game show|reality show|broadcast|presenter|talk show)\b/i,
-    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'television remote', 'tv studio', 'television screen'], first: true },
+    ko: /드라마(?!틱)|예능|게임쇼|TV ?쇼|티비|토크쇼|(^|\s)쇼(?!핑)|시즌 종영|종영|방송|시청률|리얼리티|진행자/, q: ['watching tv', 'television remote', 'tv studio', 'television screen'], first: true, not: /sad|stress|angry|frustrat|depress|headache|crying|worried/ },
   { re: /\b(movie|film|box office|premiere|cinema)\b/i, ko: /영화|박스오피스|개봉|시사회|흥행|헝거게임/, q: ['cinema', 'movie theater seats', 'film reel', 'popcorn movie'], first: true, not: /vpn|laptop|computer|netflix|streaming/ },
   { re: /\b(gta|video ?games?|gaming|playstation|ps5|xbox|nintendo|switch 2|steam|esports|e-sports)\b/i, ko: /(?<!헝거)게임(?!쇼)|GTA|닌텐도|플레이스테이션|엑스박스|스팀|e스포츠/, q: ['video game controller', 'gaming setup', 'gamer'], first: true },
   { re: /\b(concert|album|single|tour|k-?pop|singer|band)\b/i, ko: /콘서트|앨범|컴백|공연|가수|아이돌/, q: ['concert stage', 'concert crowd', 'microphone stage'], first: true },
