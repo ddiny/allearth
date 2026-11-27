@@ -119,7 +119,7 @@ ${egung({ cls: 't-eg', src: heavy ? EG.serious : EG.smile, enter: 'up .5s .5s bo
 <p class="a" style="position:absolute;left:0;right:0;top:530px;text-align:center;font-size:34px;color:var(--mute);animation:up .5s .3s both">프로필 링크에서 지구 한 바퀴 돌아보세요</p>
 <div class="fbg a" style="animation:up .6s .4s both">${bgFlags}</div>
 ${egung({ cls: 'o-eg', src: EG.outro, enter: 'hopin .9s .2s both', move: 'wave 1.6s 1.1s 2 ease-in-out' })}
-<div class="bubble a" style="left:610px;top:640px;animation:pop .45s 1.0s both;transform-origin:70% 100%">${BUB(true)}<span>또 올게!</span></div>`,
+<div class="bubble a" style="left:680px;top:575px;animation:pop .45s 1.0s both;transform-origin:30% 100%">${BUB()}<span>또 올게!</span></div>`,
   '.o-eg{left:250px;top:740px;width:560px;height:874px}' +
   '.fbg{position:absolute;left:0;right:0;top:700px;height:980px}' +
   '.fbg img{position:absolute;width:150px;height:112px;object-fit:cover;border-radius:16px;filter:blur(8px);opacity:.55}' +
