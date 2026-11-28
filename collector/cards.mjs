@@ -7,7 +7,9 @@
 //  CARDS_SOURCE  allearth(기본) = AllEarth 앱 topics.js · ath = 예전 ath 앱의 실시간 화제(Supabase, topics.js 변환 전까지)
 //  CARDS_COUNT   화제 카드 수 (기본 8 = 표지 + 8 + 마지막 장 10장, 최대 18). 10장을 넘으면 앱에서 직접 올리기용
 //                (인스타 API는 캐러셀 10장까지. 화제가 9개면 마지막 장 없이 10장)
-//  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US)
+//  CARDS_EXCLUDE 뺄 나라 코드 (예: JP,US). 한 번 뺀 나라는 그 날짜의 exclude.json 에 남아서, 같은 날짜를 다시 만들어도 계속 빠져요
+//  CARDS_REBUILD 1 이면 이미 인스타에 올린 날짜도 다시 만들어요 (기본: 올린 날짜는 건너뜀)
+//  CARDS_PREV    지난 결과(날짜별 exclude.json·posted.json)를 받아 둔 폴더, 기본 out/prev
 //  CARDS_PHOTOS  0 이면 사진 대신 국기 그래픽 (사진 사용 조건을 확인하기 전 등)
 //  PIXABAY_API_KEY (또는 PEXELS_API_KEY) 있으면 사진이 없는 화제에 무료 사진을 찾아 넣어요 (앱 데이터에 사진이 있으면 그걸 우선)
 //  CARDS_HASHTAGS 고정 해시태그 (공백으로 구분, 기본 #allearth #지구근황). 남는 자리(최대 5개까지)는 그날 화제 키워드로
@@ -45,6 +47,10 @@ function hashtags(topics) {
 }
 const HANDLE = (process.env.CARDS_HANDLE || '').trim();
 const EXCLUDE = new Set((process.env.CARDS_EXCLUDE || '').toUpperCase().split(',').map(s => s.trim()).filter(Boolean));
+const PREV = process.env.CARDS_PREV || 'out/prev';
+const REBUILD = /^(1|true|yes|on)$/i.test(process.env.CARDS_REBUILD || '');
+/* 그 날짜에 전에 뺀 나라 (exclude.json) */
+const savedExclude = date => { try { return JSON.parse(readFileSync(`${PREV}/${date}/exclude.json`, 'utf8')).map(s => String(s).toUpperCase()); } catch { return []; } };
 const PHOTOS = !/^(0|false|no|off)$/i.test(process.env.CARDS_PHOTOS || '');
 /* 릴스 영상(reel.mp4)도 같이 만들기. CARDS_REELS=0 이면 끔 */
 const REELS = !/^(0|false|no|off)$/i.test(process.env.CARDS_REELS || '');
@@ -65,7 +71,14 @@ function loadFont() {
 
 /* ---------- 1. 앱 화제 읽기 ---------- */
 async function pick() {
-  const { rows, date, dateLabel } = SOURCE === 'ath' ? await loadAth({ max: Math.min(COUNT, 9), exclude: EXCLUDE, log }) : loadAllEarth();
+  let { rows, date, dateLabel } = SOURCE === 'ath' ? await loadAth({ max: Math.min(COUNT, 9), exclude: EXCLUDE, log }) : loadAllEarth();
+  /* 같은 날짜를 전에 만들 때 뺀 나라가 있으면 이번에도 빼요 (확인을 마친 카드가 다시 바뀌지 않게) */
+  const saved = savedExclude(date).filter(cc => !EXCLUDE.has(cc));
+  if (saved.length) {
+    log(`  · ${date} 에 전에 뺀 나라를 이번에도 빼요: ${saved.join(', ')}`);
+    saved.forEach(cc => EXCLUDE.add(cc));
+    if (SOURCE === 'ath') ({ rows, date, dateLabel } = await loadAth({ max: Math.min(COUNT, 9), exclude: EXCLUDE, log: () => {} }));
+  }
   if (SOURCE !== 'ath') log(`AllEarth 앱 화제를 읽어요 (topics.js · ${dateLabel} · ${rows.length}개)`);
   const topics = rows
     .filter(r => COUNTRY[r.cc] && !EXCLUDE.has(r.cc) && r.title)
@@ -144,6 +157,14 @@ function caption({ date, topics, countries }) {
 /* ---------- 실행 ---------- */
 export async function main() {
   const { topics, date } = await pick();
+  /* 이미 인스타에 올린 날짜는 다시 만들지 않아요 (올린 카드·릴스가 바뀌지 않게). CARDS_REBUILD=1 이면 다시 만들어요 */
+  if (!REBUILD && existsSync(`${PREV}/${date}/posted.json`)) {
+    const msg = `${date} 카드는 이미 인스타에 올렸어요. 새 화제가 아직 없어서 다시 만들지 않았어요.`;
+    log('  · ' + msg);
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## 카드뉴스\n${msg}\n(꼭 다시 만들려면 '매일 카드뉴스 만들기'를 직접 실행하면서 '올린 날짜도 다시 만들기'를 체크해요)\n`);
+    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `date=${date}\nskipped=1\n`);
+    return;
+  }
   if (!topics.length) throw new Error('카드로 만들 화제가 없어요 (app/assets/topics/topics.js 확인)');
   /* 사진이 없는 화제는 Pexels 무료 사진으로 채워요 */
   if (PHOTOS && hasPhotoSource()) {
@@ -193,6 +214,8 @@ export async function main() {
 
   const cap = caption({ date, topics, countries });
   await writeFile(`${dir}/caption.txt`, cap + '\n');
+  /* 뺀 나라 기록: 같은 날짜를 다시 만들 때 그대로 적용돼요 */
+  if (EXCLUDE.size) await writeFile(`${dir}/exclude.json`, JSON.stringify([...EXCLUDE].sort()) + '\n');
   await writeFile(`${dir}/cards.json`, JSON.stringify({ date, countries, slides: files.map(f => f.name), topics: topics.map(t => ({ cc: t.cc, title: t.title, source: t.source_url, photo: t.photoShown ? t.image_credit : null })) }, null, 1));
 
   /* 릴스 영상: 실패해도 카드는 그대로 써요 */

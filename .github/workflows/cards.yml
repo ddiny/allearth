@@ -28,6 +28,10 @@ on:
         description: '뺄 나라 코드 (예: JP,US). 비우면 전체'
         type: string
         default: ''
+      rebuild:
+        description: '이미 인스타에 올린 날짜도 다시 만들기 (보통은 끄고 두세요)'
+        type: boolean
+        default: false
 permissions:
   contents: write               # cards-images 브랜치에 이미지를 올리기 위해
 concurrency:
@@ -51,10 +55,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p out/cards
-          git fetch -q --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" cards-images 2>/dev/null \
-            && git show FETCH_HEAD:photo-history.json > out/cards/photo-history.json 2>/dev/null \
-            || { echo '[]' > out/cards/photo-history.json; echo '사진 기록이 아직 없어요 (처음)'; }
+          mkdir -p out/cards out/prev
+          if git fetch -q --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" cards-images 2>/dev/null; then
+            git show FETCH_HEAD:photo-history.json > out/cards/photo-history.json 2>/dev/null || echo '[]' > out/cards/photo-history.json
+            # 날짜별로 '뺀 나라'(exclude.json)와 '게시 기록'(posted.json)도 받아 둬요
+            for d in $(git ls-tree --name-only FETCH_HEAD | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); do
+              mkdir -p "out/prev/$d"
+              for f in exclude.json posted.json; do git show "FETCH_HEAD:$d/$f" > "out/prev/$d/$f" 2>/dev/null || rm -f "out/prev/$d/$f"; done
+            done
+          else
+            echo '[]' > out/cards/photo-history.json; echo '사진 기록이 아직 없어요 (처음)'
+          fi
       - name: 카드 만들기
         id: cards
         run: node collector/cards.mjs
@@ -66,15 +77,18 @@ jobs:
           CARDS_PHOTOS: ${{ github.event_name != 'workflow_dispatch' || inputs.photos }}
           CARDS_COUNT: ${{ inputs.count }}
           CARDS_EXCLUDE: ${{ inputs.exclude }}
+          CARDS_REBUILD: ${{ inputs.rebuild }}
           CARDS_HANDLE: ${{ vars.CARDS_HANDLE }}
           CARDS_HASHTAGS: ${{ vars.CARDS_HASHTAGS }}   # 고정 태그. 비우면 #allearth #지구근황 + 그날 화제 키워드 3개
       - name: 내려받기용으로 보관
+        if: steps.cards.outputs.skipped != '1'
         uses: actions/upload-artifact@v4
         with:
           name: cards-${{ steps.cards.outputs.date }}
           path: ${{ steps.cards.outputs.dir }}
           retention-days: 14
       - name: cards-images 브랜치에 올리기 (인스타가 가져갈 공개 주소)
+        if: steps.cards.outputs.skipped != '1'
         env:
           DATE: ${{ steps.cards.outputs.date }}
           DIR: ${{ steps.cards.outputs.dir }}
