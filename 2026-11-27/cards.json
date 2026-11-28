@@ -1,0 +1,66 @@
+{
+ "date": "2026-11-27",
+ "countries": 8,
+ "slides": [
+  "01-cover.jpg",
+  "02-in.jpg",
+  "03-it.jpg",
+  "04-uk.jpg",
+  "05-id.jpg",
+  "06-es.jpg",
+  "07-de.jpg",
+  "08-au.jpg",
+  "09-us.jpg",
+  "10-outro.jpg"
+ ],
+ "topics": [
+  {
+   "cc": "IN",
+   "title": "인도-뉴질랜드 2번째 테스트 경기",
+   "source": "https://www.wral.com/news/ap/f5075-india-wins-toss-bowls-in-2nd-test-against-new-zealand-gurnoor-brar-to-debut/",
+   "photo": "사진: shents / Pixabay"
+  },
+  {
+   "cc": "IT",
+   "title": "자동차 연간검사 비용 상향",
+   "source": "https://www.ilmessaggero.it/economia/schede/revisione_auto_2027_aumento_costo_tariffa_quanto_ultime_notizie-9915102.html",
+   "photo": "사진: geraldoswald62 / Pixabay"
+  },
+  {
+   "cc": "UK",
+   "title": "블랙프라이데이 쇼핑",
+   "source": "https://www.theguardian.com/thefilter/2026/nov/25/best-black-friday-deals-under-50-uk",
+   "photo": "사진: 46173 / Pixabay"
+  },
+  {
+   "cc": "ID",
+   "title": "팰리스의 유로파 승리",
+   "source": "https://www.medcom.id/olahraga/liga-dunia/0kpq94LK-hasil-crystal-palace-vs-real-sociedad-mateta-dan-mcneil-antar-the-eagles-raih-kemenangan",
+   "photo": "사진: planet_fox / Pixabay"
+  },
+  {
+   "cc": "ES",
+   "title": "29일 총선 여론조사",
+   "source": "https://elpais.com/espana/elecciones-generales/2026-11-26/quien-va-a-ganar-las-elecciones-la-probabilidad-de-cada-mayoria-segun-las-encuestas.html",
+   "photo": "사진: blickpixel / Pixabay"
+  },
+  {
+   "cc": "DE",
+   "title": "마르쿠스 란츠 톡쇼",
+   "source": "https://www.stern.de/kultur/tv/markus-lanz-heute--26-11---die-talk-gaeste-am-donnerstag-38611410.html",
+   "photo": "사진: campbellstogether / Pixabay"
+  },
+  {
+   "cc": "AU",
+   "title": "셀틱 토레센스 꺾다",
+   "source": "https://www.bbc.com/sport/football/live/cr1ewg472ye5t",
+   "photo": "사진: jarmoluk / Pixabay"
+  },
+  {
+   "cc": "US",
+   "title": "넷플릭스 '더 바디' 1위",
+   "source": "https://www.thewrap.com/creative-content/tv-shows/the-body-netflix-tv-ratings-second-week/",
+   "photo": "사진: yousafbhutta / Pixabay"
+  }
+ ]
+}
